@@ -17,17 +17,19 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.conf.urls.i18n import i18n_patterns
 
-urlpatterns = [
+urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
-]
+)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns += [
+urlpatterns += i18n_patterns(
     # Include your own app's URLs first to override default app URLs
     # url(r'^', include('<yourapp>.urls')),
     # Now, include default app URLs
     url(r'^', include('danceschool.urls')),
     url(r'^', include('cms.urls')),
-]
+    url(r'^accounts/', include('allauth.urls')),
+)

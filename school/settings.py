@@ -85,6 +85,8 @@ INSTALLED_APPS = [
     # ## Typically, if you have a custom app for custom functionality,
     # ## it will be added here:
     # '< my_custom_app >',
+    'testapp',
+
 
     # The project provides some default theming options, including easy Bootstrap 4
     # plugins. As additional themes are included in the project, they should be added
@@ -121,7 +123,7 @@ INSTALLED_APPS = [
     # Note: Payment processor apps are automatically enabled/disabled below.
     # Except for the "Pay at door" app, which requires no external configuation
     # tokens or other environment variables to be present.
-    # 'danceschool.payments.payatdoor',
+    'danceschool.payments.payatdoor',
 
     # These are required for the CMS
     'menus',
@@ -135,6 +137,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
 
     # For rich text in Django CMS
     'ckeditor_filebrowser_filer',
@@ -191,6 +195,8 @@ INSTALLED_APPS = [
 
     # Django-polymorphic is used for Event multi-table inheritance
     'polymorphic',
+
+    'parler',
 
     # Django-storages allows use of Amazon S3 or other solutions for
     # hosting user uploaded files
@@ -294,6 +300,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
 # Logging
 LOGGING = {
     'version': 1,
@@ -340,6 +354,23 @@ LOGGING = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
+LANGUAGES = [
+  ('en', u'EN'),
+  ('uk', u'UA'),
+  ('ru', u'RU'),
+]
+
+PARLER_LANGUAGES = {
+    1: (
+        {'code': 'en',},
+        {'code': 'uk',},
+        {'code': 'ru',},
+    ),
+    'default': {
+        'fallbacks': ['en'],          # defaults to PARLER_DEFAULT_LANGUAGE_CODE
+        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
+    }
+}
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -347,7 +378,7 @@ LANGUAGE_CODE = 'en'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-TIME_ZONE = environ.get('TIME_ZONE','America/New_York')
+TIME_ZONE = environ.get('TIME_ZONE','Europe/Kyiv')
 
 USE_I18N = True
 
