@@ -1,0 +1,117 @@
+{% load menu_tags sekizai_tags danceschool_tags i18n %}
+
+<nav class="navbar navbar-expand-md {% if child.selected %} navbar-hbc {% else %} navbar-obf {% endif %} fixed-top mb-4">
+  <a class="navbar-brand" href="{{ site_root }}">{% getSchoolName %}</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarCollapse">
+    <ul class="navbar-nav ml-auto">
+      {% for child in children %}
+        {% if child.children %}
+          <li class="child{% if child.selected %} active selected{% endif %}{% if child.ancestor %} ancestor{% endif %}{% if child.sibling %} sibling{% endif %}{% if child.descendant %} descendant{% endif %} nav-item dropdown">
+            <a href="{{ child.attr.redirect_url|default:child.get_absolute_url }}" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ child.get_menu_title }}&nbsp;<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              {% show_menu from_level to_level extra_inactive extra_active "cms/navbar_sub.html" "" "" child %}
+            </ul>
+          </li>
+        {% else %}
+          <li class="child{% if child.selected %} active selected{% endif %}{% if child.ancestor %} ancestor{% endif %}{% if child.sibling %} sibling{% endif %}{% if child.descendant %} descendant{% endif %} nav-item">
+            <a href="{{ child.attr.redirect_url|default:child.get_absolute_url }}" class="nav-link">{{ child.get_menu_title }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      {% language_chooser %}
+    </ul>
+  </div>
+</nav>
+
+
+<!-- yellow #f8b133 brown #53220f -->
+<!-- purple #303056 pink # fbead6 -->
+{% addtoblock "css" %}
+<style type="text/css">
+
+body {
+  padding-top:45px;
+  /* background-color:#f8b133; hbc */
+  background-color:#fbead6; /* obf */
+}
+
+.cms-toolbar-expanded .fixed-top{
+    top:45px;
+}
+
+
+
+.navbar-hbc,
+.navbar-hbc .navbar-nav .dropdown-menu {
+    background-color: #53220f;
+}
+
+/* change the brand and text color */
+.navbar-hbc .navbar-brand,
+.navbar-hbc .navbar-text {
+    color: rgba(248,177,051,.8);
+}
+/* change the link color */
+.navbar-hbc .navbar-nav .nav-link,
+.navbar-hbc .navbar-nav .dropdown-item {
+    color: rgba(248,177,051,.5);
+    background-color: #53220f;
+}
+/* change the color of active or hovered links */
+.navbar-hbc .dropdown-item.active,
+.navbar-hbc .dropdown-item:hover,
+.navbar-hbc .nav-item.active .nav-link,
+.navbar-hbc .nav-item:hover .nav-link {
+    color: #f8b133;
+    background-color: #53220f;
+}
+
+.navbar-hbc .navbar-toggler {
+    border-color: rgb(248,177,051);
+}
+.navbar-hbc .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(248,177,051, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+
+
+
+.navbar-obf,
+.navbar-obf .navbar-nav .dropdown-menu {
+    background-color: #303056;
+}
+
+/* change the brand and text color */
+.navbar-obf .navbar-brand,
+.navbar-obf .navbar-text {
+    color: rgba(251,234,214,.8);
+}
+/* change the link color */
+.navbar-obf .navbar-nav .nav-link,
+.navbar-obf .navbar-nav .dropdown-item {
+    color: rgba(251,234,214,.5);
+    background-color: #303056;
+}
+/* change the color of active or hovered links */
+.navbar-obf .dropdown-item.active,
+.navbar-obf .dropdown-item:hover,
+.navbar-obf .nav-item.active .nav-link,
+.navbar-obf .nav-item:hover .nav-link {
+    color: #fbead6;
+    background-color: #303056;
+}
+
+.navbar-obf .navbar-toggler {
+    border-color: rgb(251,234,214);
+}
+.navbar-obf .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(251,234,214, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+</style>
+{% endaddtoblock %}

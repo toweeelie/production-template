@@ -1,0 +1,43 @@
+/* purple #303056 pink # fbead6 */
+
+.anchor-fixed {
+  margin: -50px 0px 50px 0px;
+  position: absolute;
+}
+
+
+.social-links {
+  padding-left: 0px;
+  list-style: none;
+  position: relative;
+  float: left;
+  left: 50%;
+}
+.social-links li {
+  margin: 2px;
+  position: relative;
+  float: left;
+  right: 50%;
+}
+
+
+
+.social-links a {
+  font-size: 18px;
+  display: inline-block;
+  background: #303056;
+  color: #fbead6;
+  line-height: 1;
+  padding: 8px 0;
+  border-radius: 50%;
+  text-align: center;
+  width: 36px;
+  height: 36px;
+  transition: 0.3s;
+}
+
+.social-links a:hover {
+  background: #53220f;
+  color: #f8b133;
+  text-decoration: none;
+}

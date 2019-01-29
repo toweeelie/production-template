@@ -1,0 +1,32 @@
+{% extends "cms/site_base.html" %}
+{% load static sekizai_tags cms_tags menu_tags %}
+
+{% block extra_head %}
+
+	{% block favicon %}<link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}" />{% endblock %}
+
+	{% addtoblock "meta" %}
+		<meta name="robots" content="index, follow">
+	{% endaddtoblock %}
+
+	{# Fitvids code (to ensure Youtube videos always fit) #}
+	{% addtoblock "js" %}
+	<script type="text/javascript" src="{% static 'fitvids/jquery.fitvids.js' %}"></script>
+	{% endaddtoblock %}
+	{% addtoblock "js" %}
+	<script type="text/javascript">
+	    $(".content-col").fitVids();
+	</script>
+	{% endaddtoblock %}
+
+{% endblock %}
+
+{% block content %}
+	{% placeholder "content" %}
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/social_links.css' %}" />
+{% endblock %}
+
+{% block footer %}{% static_placeholder "footer" %}{% endblock %}

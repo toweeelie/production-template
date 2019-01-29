@@ -1,0 +1,9 @@
+{% load i18n menu_tags sekizai_tags %}
+
+{% if languages|length > 1 %}
+{% for language in languages %}
+<li class="child{% if current_language == language.0 %} active{% endif %} nav-item" >
+	<a href="{% page_language_url language.0 %}" class="nav-link">{{ language.1 }}</a>
+</li>
+{% endfor %}
+{% endif %}
