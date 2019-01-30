@@ -346,21 +346,53 @@ database_setup () {
         echo
     fi
 
-    read -p "Create a new superuser account? [Y/n] " -n 1 -r
+    # read -p "Build *.mo files for i10n? [Y/n] " -n 1 -r
+    # if [[ $REPLY =~ ^[Nn]$ ]] ; then
+        # echo 
+    # else
+        # echo -e "\nBuilding *.mo files. This may take a minute."
+        # docker exec $CONTAINER_NAME python3 manage.py makemessages
+        # echo
+    # fi
+    
+    read -p "Load existing db? [Y/n] " -n 1 -r
     if [[ $REPLY =~ ^[Nn]$ ]] ; then
         echo 
-    else
-        echo
-        docker exec -it $CONTAINER_NAME python3 manage.py createsuperuser
-        echo
-    fi
+    
+        read -p "Create a new superuser account? [Y/n] " -n 1 -r
+        if [[ $REPLY =~ ^[Nn]$ ]] ; then
+            echo 
+        else
+            echo
+            docker exec -it $CONTAINER_NAME python3 manage.py createsuperuser
+            echo
+        fi
 
-    read -p "Run the setupschool script? [Y/n] " -n 1 -r
-    if [[ $REPLY =~ ^[Nn]$ ]] ; then
-        echo 
+        read -p "Run the setupschool script? [Y/n] " -n 1 -r
+        if [[ $REPLY =~ ^[Nn]$ ]] ; then
+            echo 
+        else
+            echo
+            docker exec -it $CONTAINER_NAME python3 manage.py setupschool
+            echo
+        fi
+        
     else
+        DB_CONTAINER_NAME=$(docker ps | grep "danceschool_shellonly_postgres\.1" | awk '{ print $1;}')
         echo
-        docker exec -it $CONTAINER_NAME python3 manage.py setupschool
+        docker exec -it $DB_CONTAINER_NAME psql -U postgres -d danceschool_postgres -c "TRUNCATE auth_group_permissions CASCADE;"
+        echo
+        echo
+        docker exec -it $DB_CONTAINER_NAME psql -U postgres -d danceschool_postgres -c "TRUNCATE auth_permission CASCADE;"
+        echo
+        echo
+        docker exec -it $DB_CONTAINER_NAME psql -U postgres -d danceschool_postgres -c "TRUNCATE django_admin_log CASCADE;"
+        echo
+        echo
+        docker exec -it $DB_CONTAINER_NAME psql -U postgres -d danceschool_postgres -c "TRUNCATE django_content_type CASCADE;"
+        echo
+        echo
+        docker exec -it $CONTAINER_NAME python3 manage.py loaddata custom/db_full.json
         echo
     fi
 
