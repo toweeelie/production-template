@@ -27,7 +27,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += i18n_patterns(
     # Include your own app's URLs first to override default app URLs
-    # url(r'^', include('<yourapp>.urls')),
+    # url(r'^', include('your_app.urls')),
     # Now, include default app URLs
     url(r'^', include('danceschool.urls')),
     url(r'^', include('cms.urls')),
