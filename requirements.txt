@@ -2,7 +2,7 @@ boto3>=1.4.7
 dj-database-url>=0.4.2
 dj-email-url>=0.0.10
 # django-danceschool>=0.8.5
--e hg+https://novokhatko.pp.ua/scm/hg/django-danceschool#egg=django_danceschool
+-e hg+https://danceschoolrouser:Q3$)cYG=W=FXwV.B@novokhatko.pp.ua/scm/hg/django-danceschool#egg=django_danceschool
 django-redis>=4.10.0
 django-storages>=1.6.5
 Django>=1.11.15,<2.0
