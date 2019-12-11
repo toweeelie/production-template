@@ -2,6 +2,7 @@
 {% get_current_timezone as TIME_ZONE %}
 {% get_current_language as LANGUAGE_CODE %}
 
+<div id="loading"><i class="fa fa-spinner fa-spin" style="font-size:24px"></i></div>
 <div id="calendarbox">&nbsp;</div>
 <!-- Modal -->
 
@@ -82,6 +83,12 @@
 	                $("#eventContent").modal();
 	            });
 	        },
+            loading: function (bool) {
+                if (bool) 
+                    $('#loading').show();
+                else 
+                    $('#loading').hide();
+            },
 	    });
 	    $("#closeLink").click(function() {
 	        $("#eventContent").hide();
