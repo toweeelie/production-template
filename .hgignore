@@ -1,0 +1,4 @@
+syntax: glob
+certs/*
+backups/*
+*/__pycache__/*
