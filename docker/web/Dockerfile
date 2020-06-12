@@ -23,3 +23,5 @@ RUN apk del -r python3-dev postgresql git mercurial
 
 # Prepare
 COPY ./school/ /data/web/school/
+RUN python3 manage.py compilemessages
+

@@ -345,16 +345,7 @@ database_setup () {
         docker exec $CONTAINER_NAME python3 manage.py collectstatic --no-input
         echo
     fi
-
-    # read -p "Build *.mo files for i10n? [Y/n] " -n 1 -r
-    # if [[ $REPLY =~ ^[Nn]$ ]] ; then
-        # echo 
-    # else
-        # echo -e "\nBuilding *.mo files. This may take a minute."
-        # docker exec $CONTAINER_NAME python3 manage.py makemessages
-        # echo
-    # fi
-    
+  
     read -p "Load existing db? [Y/n] " -n 1 -r
     if [[ $REPLY =~ ^[Nn]$ ]] ; then
         echo 
