@@ -310,6 +310,13 @@ database_setup () {
         sleep 10
     fi
 
+    STACK_EXISTS="$(docker stack ls | grep "school" | awk '{ print $1;}')"
+    if [[ $STACK_EXISTS ]]; then
+        echo -e "Existing original stack is running. Removing this stack.\n"
+        docker stack rm school
+        sleep 10
+    fi
+
     echo -e "Deploying a shell-only stack for initial setup of the database.\n"
     docker stack deploy -c ${BASH_SOURCE%/*}/docker-compose-shellonly.yml danceschool_shellonly
 
@@ -407,4 +414,9 @@ build_nginx
 build_web
 database_setup
 
+
 echo -e "Setup complete!"
+echo -e "Starting original stack"
+
+docker stack deploy -c ../docker-compose.yml school
+echo -e "All done!"
