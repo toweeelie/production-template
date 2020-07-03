@@ -1,0 +1,18 @@
+{% extends "core/registration/base_event_registration.html" %}
+{% load sekizai_tags i18n static %}
+
+{% block door_reg %}
+{% if perms.core.accept_door_payments %}
+  <div class="alert alert-info"
+       role="alert">
+    <h4>{% trans "Is this a door/invoice registration?" %}<br />
+      <small>({% trans "to be filled out only by school staff" %})</small>
+    </h4>
+    <p>{% trans "This is a door/invoice registration" %} {{ form.payAtDoor }}</p>
+    <!-- <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script> -->
+    {{ form.media }}
+    <p>{% trans "Search customer" %} {{ form.CustomerSearch }}</p>
+
+  </div>
+{% endif %}
+{% endblock %}
