@@ -50,7 +50,7 @@
 	{% for series in upcoming_events %}
 		<tr>
 			<td>{{ series.month|readable_month }} {{ series.year }}</td>
-			<td>{{ series.classDescription.title }}</td>
+			<td><a href="{% url 'viewregistrations' series.id %}">{{ series.classDescription.title }}</a></td>
 			<td>
 			{% for this_instructor in series.teachers %}
 				{% if this_instructor.fullName != staffmember.fullName %}
