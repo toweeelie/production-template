@@ -2,3 +2,4 @@ syntax: glob
 certs/*
 backups/*
 */__pycache__/*
+*.mo

@@ -1,12 +1,11 @@
 {% load menu_tags sekizai_tags danceschool_tags i18n %}
 
 <nav class="navbar navbar-expand-md {% if child.selected %} navbar-hbc {% else %} navbar-obf {% endif %} fixed-top mb-4">
-  <a class="navbar-brand" href="{{ site_root }}">{% getSchoolName %}</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav mr-auto">
       {% for child in children %}
         {% if child.children %}
           <li class="child{% if child.selected %} active selected{% endif %}{% if child.ancestor %} ancestor{% endif %}{% if child.sibling %} sibling{% endif %}{% if child.descendant %} descendant{% endif %} nav-item dropdown">
@@ -22,10 +21,23 @@
         {% endif %}
       {% endfor %}
     </ul>
-    <ul class="navbar-nav ml-auto">
-      {% language_chooser %}
-    </ul>
   </div>
+  <ul class="navbar-nav flex-row ml-auto">    
+
+    <li class="nav-item"><a class="nav-link px-2" href="https://www.facebook.com/hotboogiedance/"><span class="fa fa-facebook"></span></a></li>
+    <li class="nav-item"><a class="nav-link px-2" href="https://www.instagram.com/hbc_kyiv/"><span class="fa fa-instagram"></span></a></li>
+    <li class="nav-item"><a class="nav-link px-2" href="https://www.youtube.com/channel/UCLmw_1MKOywvceuuIG25e8A"><span class="fa fa-youtube-play"></span></a></li>
+    <li class="nav-item"><a class="nav-link px-2" href="mailto:hotboogieclub@gmail.com"><span class="fa fa-envelope"></span></a></li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle pl-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-phone"></span>&nbsp;<span class="caret"></span></a>
+      <ul class="dropdown-menu dropdown-menu-right" style="position: absolute;">
+        <li><a class="dropdown-item" href="tel:+380636513126"><span class="fa fa-phone"></span>&nbsp;+38 063 6513126 ({% trans 'Kuva' %})</a></li>
+        <li><a class="dropdown-item" href="tel:+380634571300"><span class="fa fa-phone"></span>&nbsp;+38 063 4571300 ({% trans 'Maria' %})</a></li>
+        <li><a class="dropdown-item" href="tel:+380677082857"><span class="fa fa-phone"></span>&nbsp;+38 067 7082857 ({% trans 'Anna' %})</a></li>
+      </ul>
+    </li>
+    {% language_chooser %}
+  </ul>
 </nav>
 
 

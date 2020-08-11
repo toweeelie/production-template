@@ -1,0 +1,591 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-11 20:26+0300\n"
+"PO-Revision-Date: 2020-08-11 20:51+0300\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: admin.py:13
+msgid "Merge selected customers"
+msgstr "Слияние выбранных записей"
+
+#: cms_menus.py:35
+msgid "About"
+msgstr "О нас"
+
+#: forms.py:18
+msgid "Enter a customer name"
+msgstr "Введите имя клиента"
+
+#: forms.py:28
+msgid "Dance Role"
+msgstr "Танцевальная роль"
+
+#: forms.py:33
+#, fuzzy
+msgid "Drop-In"
+msgstr "Стрелка раскрывающегося - списка"
+
+#: forms.py:35
+msgid "Pay Later"
+msgstr "Оплатить позже"
+
+#: forms.py:37
+msgid "Amount Paid"
+msgstr "Выплаченная Сумма"
+
+#: forms.py:41
+msgid "Payment received by:"
+msgstr "Оплату получил(а):"
+
+#: forms.py:47
+msgid "Enter a staff member name"
+msgstr "Введите имя сотрудника"
+
+#: templates/cms/navbar.html:4
+msgid "Toggle navigation"
+msgstr "Переключить навигацию"
+
+#: templates/cms/navbar.html:34
+msgid "Kuva"
+msgstr "Кува"
+
+#: templates/cms/navbar.html:35
+msgid "Maria"
+msgstr "Машута"
+
+#: templates/cms/navbar.html:36
+msgid "Anna"
+msgstr "Аня"
+
+#: templates/core/account_profile.html:7
+msgid "Welcome Back"
+msgstr "Добро пожаловать обратно"
+
+#: templates/core/account_profile.html:9
+#, fuzzy, python-format
+msgid "Account Profile for %(name)s"
+msgstr "Профиль счета для %(имя)s"
+
+#: templates/core/account_profile.html:13
+msgid "Register for Classes"
+msgstr "Регистрация на занятия"
+
+#: templates/core/account_profile.html:16
+#: templates/core/registration/single_event_registration.html:29
+msgid "View Registrations"
+msgstr "Просмотр регистраций"
+
+#: templates/core/account_profile.html:19
+msgid "Staff Directory"
+msgstr "Каталог персонала"
+
+#: templates/core/account_profile.html:23
+msgid "Your Instructor Stats"
+msgstr "Ваша статистика"
+
+#: templates/core/account_profile.html:26
+msgid "Your Payment History"
+msgstr "Ваша история платежей"
+
+#: templates/core/account_profile.html:29
+msgid "Update Your Contact Info"
+msgstr "Обновить вашу контактную информацию"
+
+#: templates/core/account_profile.html:41
+msgid "Current and Upcoming Series"
+msgstr "Текущая и предстоящие серии занятий"
+
+#: templates/core/account_profile.html:46
+#: templates/core/account_profile.html:119
+#: templates/core/account_profile.html:170
+#: templates/core/account_profile.html:219
+msgid "Month"
+msgstr "Месяц"
+
+#: templates/core/account_profile.html:46
+msgid "Series/Event Name"
+msgstr "Название серии занятий/события"
+
+#: templates/core/account_profile.html:46
+msgid "Teaching Partner"
+msgstr "Партнер по преподаванию"
+
+#: templates/core/account_profile.html:46
+msgid "Other Staff"
+msgstr "Прочие сотрудники"
+
+#: templates/core/account_profile.html:46
+#: templates/core/account_profile.html:119
+#: templates/core/account_profile.html:170
+#: templates/core/account_profile.html:219
+#: templates/core/view_eventregistrations.html:10
+#: templates/private_events/private_fullcalendar.html:34
+msgid "Location"
+msgstr "Местоположение"
+
+#: templates/core/account_profile.html:46
+msgid "Start Time"
+msgstr "Время начала"
+
+#: templates/core/account_profile.html:46
+msgid "Students Registered"
+msgstr "Студентов зарегистрировано"
+
+#: templates/core/account_profile.html:78
+msgid "Customer"
+msgstr "Клиент"
+
+#: templates/core/account_profile.html:78
+#, fuzzy, python-format
+msgid "Summary Statistics for %(name)s"
+msgstr "Сводная статистика для %(имя)s"
+
+#: templates/core/account_profile.html:88
+#: templates/core/account_profile.html:158
+msgid "It looks like you are not yet a customer."
+msgstr "Похоже, вы еще не клиент."
+
+#: templates/core/account_profile.html:93
+msgid "Basic Customer Information"
+msgstr "Базовая информация о клиентах"
+
+#: templates/core/account_profile.html:95
+msgid "Basic Information"
+msgstr "Основная информация"
+
+#: templates/core/account_profile.html:100
+msgid "Customer Since"
+msgstr "Клиент с"
+
+#: templates/core/account_profile.html:102
+msgid "Registration History"
+msgstr "История регистрации"
+
+#: templates/core/account_profile.html:103
+#, fuzzy
+msgid "Class Series"
+msgstr "URL-адрес серии занятий"
+
+#: templates/core/account_profile.html:104
+msgid "Events"
+msgstr "События"
+
+#: templates/core/account_profile.html:105
+#, fuzzy
+msgid "Drop-ins"
+msgstr "Дроп-ин"
+
+#: templates/core/account_profile.html:107
+#, fuzzy
+msgid "Customer Referral ID"
+msgstr "Идентификатор направления клиента"
+
+#: templates/core/account_profile.html:109
+#, fuzzy
+msgid "Available Referral Credits"
+msgstr "Доступные реферальные кредиты"
+
+#: templates/core/account_profile.html:114
+#, fuzzy
+msgid "Class Series Taken"
+msgstr "Класс Серии Взятые"
+
+#: templates/core/account_profile.html:119
+#: templates/core/account_profile.html:170
+#: templates/core/account_profile.html:219
+msgid "Series Name"
+msgstr "Название серии занятий"
+
+#: templates/core/account_profile.html:119
+#: templates/core/account_profile.html:170
+#: templates/core/account_profile.html:219
+msgid "Class Time"
+msgstr "Время занятия"
+
+#: templates/core/account_profile.html:119
+#: templates/core/account_profile.html:170
+#: templates/core/account_profile.html:219
+msgid "Instructors"
+msgstr "Преподаватели"
+
+#: templates/core/account_profile.html:139
+#: templates/core/account_profile.html:190
+#: templates/core/account_profile.html:240
+msgid "Show all"
+msgstr "Показать все"
+
+#: templates/core/account_profile.html:165
+msgid "Series Registered From Other Email Addresses"
+msgstr "Серии, зарегистрированные с других адресов электронной почты"
+
+#: templates/core/account_profile.html:214
+msgid "Other Series Registered By You"
+msgstr "Другие серии, зарегистрированые Вами"
+
+#: templates/core/account_profile.html:219
+#, fuzzy
+msgid "Registered As"
+msgstr "зарегистрировано"
+
+#: templates/core/public_calendar.html:9
+#: templates/private_events/private_fullcalendar.html:52
+msgid "Event Details"
+msgstr "Детали события"
+
+#: templates/core/public_calendar.html:13
+#: templates/core/public_calendar.html:27
+#: templates/private_events/private_fullcalendar.html:55
+#: templates/private_events/private_fullcalendar.html:71
+#: templates/private_events/private_fullcalendar.html:80
+#: templates/private_events/private_fullcalendar.html:97
+msgid "Close"
+msgstr "Закрыть"
+
+#: templates/core/public_calendar.html:19
+#: templates/private_events/private_fullcalendar.html:62
+msgid "Start"
+msgstr "Начало"
+
+#: templates/core/public_calendar.html:21
+#: templates/private_events/private_fullcalendar.html:64
+msgid "End"
+msgstr "Конец"
+
+#: templates/core/public_calendar.html:27
+#: templates/private_events/private_fullcalendar.html:71
+msgid "Read More"
+msgstr "Подробнее"
+
+#: templates/core/registration/single_event_registration.html:11
+msgid "With"
+msgstr "На"
+
+#: templates/core/registration/single_event_registration.html:13
+msgid "and"
+msgstr "и"
+
+#: templates/core/registration/single_event_registration.html:26
+msgid "Edit Class Details"
+msgstr "Редактировать детали занятия"
+
+#: templates/core/registration/single_event_registration.html:33
+msgid "Class Schedule"
+msgstr "Расписание Занятий"
+
+#: templates/core/registration/single_event_registration.html:44
+msgid "More Info"
+msgstr "Больше информации"
+
+#: templates/core/registration/single_event_registration.html:70
+msgid "Is this a door/invoice registration?"
+msgstr "Это регистрация на месте/по счету-фактуре?"
+
+#: templates/core/registration/single_event_registration.html:71
+msgid "to be filled out only by school staff"
+msgstr "для заполнения только сотрудниками школы"
+
+#: templates/core/registration/single_event_registration.html:73
+msgid "This is a door/invoice registration"
+msgstr "Это регистрация на месте/по счету-фактуре"
+
+#: templates/core/registration/single_event_registration.html:75
+msgid "Search customer"
+msgstr "Поиск клиента"
+
+#: templates/core/view_eventregistrations.html:9
+msgid "Total Students"
+msgstr "Всего Студентов"
+
+#: templates/core/view_eventregistrations.html:11
+msgid "Time"
+msgstr "Время"
+
+#: templates/core/view_eventregistrations.html:12
+msgid "Drop-Ins Permitted"
+msgstr "Drop-Ins разрешены"
+
+#: templates/core/view_eventregistrations.html:19
+#, fuzzy
+msgid "Select Event Occurrence for Check-In"
+msgstr "Выберите возникновение событий для регистрации"
+
+#: templates/core/view_eventregistrations.html:24
+#, fuzzy
+msgid "Event-level check-in"
+msgstr "Регистрация на уровне событий"
+
+#: templates/core/view_eventregistrations.html:34
+#, fuzzy
+msgid "Check In"
+msgstr "Заезд"
+
+#: templates/core/view_eventregistrations.html:36
+msgid "Name"
+msgstr "Имя"
+
+#: templates/core/view_eventregistrations.html:37
+msgid "This Series Price"
+msgstr "Цена этой серии"
+
+#: templates/core/view_eventregistrations.html:38
+msgid "Total Payment"
+msgstr "Общая сумма"
+
+#: templates/core/view_eventregistrations.html:39
+msgid "Role"
+msgstr "Роль"
+
+#: templates/core/view_eventregistrations.html:40
+msgid "Phone Number"
+msgstr "Номер телефона"
+
+#: templates/core/view_eventregistrations.html:41
+msgid "Customer Email"
+msgstr "Электронная почта клиента"
+
+#: templates/core/view_eventregistrations.html:42
+#, fuzzy
+msgid "All-Time Classes"
+msgstr "Занятия за все время"
+
+#: templates/core/view_eventregistrations.html:43
+msgid "Links"
+msgstr "Ссылки"
+
+#: templates/core/view_eventregistrations.html:56
+msgid "Customer Name"
+msgstr "Имя Клиента"
+
+#: templates/core/view_eventregistrations.html:56
+#, fuzzy
+msgid "Most recent reg. from this email address"
+msgstr "Самые последние reg. с этого адреса электронной почты"
+
+#: templates/core/view_eventregistrations.html:64
+#, fuzzy
+msgid "Gross"
+msgstr "Грубо"
+
+#: templates/core/view_eventregistrations.html:65
+#, fuzzy
+msgid "Net"
+msgstr "Сальдо"
+
+#: templates/core/view_eventregistrations.html:67
+#: templates/core/view_eventregistrations.html:105
+msgid "Adjustments/Refunds"
+msgstr "Корректировки/возвраты"
+
+#: templates/core/view_eventregistrations.html:70
+msgid "Recorded Revenue"
+msgstr "Записанный доход"
+
+#: templates/core/view_eventregistrations.html:71
+msgid "Received Revenue"
+msgstr "Полученная выручка"
+
+#: templates/core/view_eventregistrations.html:85
+#: templates/core/view_eventregistrations.html:113
+#, fuzzy
+msgid "Gross Price"
+msgstr "Валовая цена"
+
+#: templates/core/view_eventregistrations.html:86
+#: templates/core/view_eventregistrations.html:114
+msgid "Net Price"
+msgstr "Чистая цена"
+
+#: templates/core/view_eventregistrations.html:88
+#: templates/core/view_eventregistrations.html:115
+#, fuzzy
+msgid "Gross vs. Net Price"
+msgstr "Валовой против чистой цены"
+
+#: templates/core/view_eventregistrations.html:89
+#: templates/core/view_eventregistrations.html:116
+msgid "Discount Code"
+msgstr "Код скидки"
+
+#: templates/core/view_eventregistrations.html:92
+msgid "Discount"
+msgstr "Скидка"
+
+#: templates/core/view_eventregistrations.html:97
+#: templates/core/view_eventregistrations.html:119
+msgid "Voucher"
+msgstr "Ваучер"
+
+#: templates/core/view_eventregistrations.html:108
+#, fuzzy
+msgid "Invoice Status"
+msgstr "Статус счета-фактуры"
+
+#: templates/core/view_eventregistrations.html:109
+#, fuzzy
+msgid "Outstanding Balance"
+msgstr "Непогашенный остаток"
+
+#: templates/core/view_eventregistrations.html:131
+#, fuzzy
+msgid "Drop-in"
+msgstr "Стрелка раскрывающегося - списка"
+
+#: templates/core/view_eventregistrations.html:132
+msgid "N/A"
+msgstr "N/A"
+
+#: templates/core/view_eventregistrations.html:140
+msgid "Invoice"
+msgstr "Счет-фактура"
+
+#: templates/core/view_eventregistrations.html:143
+msgctxt "registration"
+msgid "Reg."
+msgstr "Рег."
+
+#: templates/core/view_eventregistrations.html:146
+msgid "Refund"
+msgstr "Возврат"
+
+#: templates/core/view_eventregistrations.html:149
+#, fuzzy
+msgid "Rev. Item"
+msgstr "Преподобный Пункт"
+
+#: templates/core/view_eventregistrations.html:159
+#, fuzzy
+msgid "Submit Checkins"
+msgstr "Отправить Чекины"
+
+#: templates/core/view_eventregistrations.html:162
+#, fuzzy
+msgid "Check-ins submitted successfully!"
+msgstr "Регистрация заехается успешно!"
+
+#: templates/core/view_eventregistrations.html:163
+#, fuzzy
+msgid "Error submitting class check-in data."
+msgstr "Ошибка представления данных регистрации класса."
+
+#: templates/core/view_eventregistrations.html:176
+#, fuzzy
+msgid "Class Registration Page"
+msgstr "Страница регистрации класса"
+
+#: templates/core/view_eventregistrations.html:177
+msgid "Select Another Class"
+msgstr "Выберите другое занятие"
+
+#: templates/private_events/private_fullcalendar.html:7
+#, fuzzy
+msgid "School Calendars"
+msgstr "Школьные календари"
+
+#: templates/private_events/private_fullcalendar.html:10
+msgid "Links To Calendar Feeds"
+msgstr "Ссылки на каналы календаря"
+
+#: templates/private_events/private_fullcalendar.html:13
+msgid "Your Classes &amp; Events"
+msgstr "Ваши занятия и события"
+
+#: templates/private_events/private_fullcalendar.html:16
+msgid "Private Events &amp; Reminders"
+msgstr "Частные мероприятия и напоминания"
+
+#: templates/private_events/private_fullcalendar.html:19
+msgid "Public Calendar Feed"
+msgstr "Канал общественного календаря"
+
+#: templates/private_events/private_fullcalendar.html:20
+msgid "copy and paste these URLs to add them to Google Calendar, etc."
+msgstr ""
+"скопируйте и вставьте эти URL-ссылки, чтобы добавить их в календарь Google "
+"и т.д."
+
+#: templates/private_events/private_fullcalendar.html:24
+msgid "Select Calendar Options"
+msgstr "Выберите параметры календаря"
+
+#: templates/private_events/private_fullcalendar.html:30
+msgid "All Events and Reminders"
+msgstr "Все события и напоминания"
+
+#: templates/private_events/private_fullcalendar.html:31
+msgid "Only Public Events"
+msgstr "Только публичные мероприятия"
+
+#: templates/private_events/private_fullcalendar.html:32
+msgid "Only My Events"
+msgstr "Только мои события"
+
+#: templates/private_events/private_fullcalendar.html:37
+#, fuzzy
+msgid "Room"
+msgstr "Номер"
+
+#: templates/private_events/private_fullcalendar.html:48
+msgid "Note"
+msgstr "Заметка"
+
+#: templates/private_events/private_fullcalendar.html:48
+msgid ""
+"For all calendar options, private reminders and private lessons displayed "
+"include only those events that are visible to your user account."
+msgstr ""
+"Для всех вариантов календаря, частных напоминаний и частных занятий "
+"отображаются только те события, которые видны для вашей учетной записи "
+"пользователя."
+
+#: templates/private_events/private_fullcalendar.html:71
+msgid "Edit Details"
+msgstr "Редактировать детали"
+
+#: templates/private_events/private_fullcalendar.html:77
+msgid "Add Event"
+msgstr "Добавить событие"
+
+#: templates/private_events/private_fullcalendar.html:89
+#, fuzzy
+msgid "Add A Class"
+msgstr "Добавить класс"
+
+#: templates/private_events/private_fullcalendar.html:90
+msgid "Add A Public Event"
+msgstr "Добавить публичное мероприятие"
+
+#: templates/private_events/private_fullcalendar.html:91
+msgid "Add A Private Event/Reminder"
+msgstr "Добавить частное событие/напоминание"
+
+#: templates/private_events/private_fullcalendar.html:209
+msgid "Currently scheduled"
+msgstr "В настоящее время запланировано"
+
+#: templates/private_events/private_fullcalendar.html:218
+msgid "No currently scheduled events."
+msgstr "В настоящее время запланированных мероприятий нет."
+
+#: views.py:31
+msgid "Invalid customer ids passed"
+msgstr "Переданы недействительные идентификаторы клиентов"
+
+#: views.py:33
+msgid "Nothing to merge"
+msgstr "Нечего обьединять"
