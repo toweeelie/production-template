@@ -4,7 +4,7 @@
 {% block content %}
 
 {% if request.user == object %}
-	<h1>{% trans "Welcome Back" %} {% if object.first_name %}, {{ object.first_name }}{% endif %}!</h1>
+	<h1>{% trans "Welcome Back" %}{% if object.first_name %}, {{ object.first_name }}{% endif %}!</h1>
 {% else %}
 	<h1>{% blocktrans with name=object.get_full_name %}Account Profile for {{ name }}{% endblocktrans %}</h1>
 {% endif %}
@@ -22,7 +22,7 @@
 			{% if perms.core.view_own_instructor_stats %}
 				<a class="btn btn-outline-secondary" href="{% url 'staffMemberStats' %}">{% trans "Your Instructor Stats" %}</a>
 			{% endif %}
-			{% if core.view_own_instructor_finances %}
+			{% if perms.core.view_own_instructor_finances %}
 				<a class="btn btn-outline-secondary" href="{% url 'staffMemberPayments' %}">{% trans "Your Payment History" %}</a>
 			{% endif %}
 			{% if perms.core.update_instructor_bio %}
@@ -39,7 +39,6 @@
 {% if staffmember %}
 
 	<h3 class="mt-4">{% trans "Current and Upcoming Series" %}</h3>
-	<div class="table-responsive">
 	<table class="table table-striped table-bordered">
 	<thead>
 		<tr>
@@ -65,7 +64,6 @@
 	{% endfor %}
 	</tbody>
 	</table>
-	</div>
 {% endif %}
 
 {% if customer or perms.cms.change_static_placeholder %}
@@ -155,8 +153,9 @@
 	{% endaddtoblock %}
 {% else %}
 	{% url 'registration' as registration_url %}
-	<p>{% blocktrans %}It looks like you are not yet a customer.{% endblocktrans %}</p>
-
+	{% if not staffmember %}
+	  <p>{% blocktrans %}It looks like you are not yet a customer.{% endblocktrans %}</p>
+	{% endif %}
 {% endif %}
 
 
