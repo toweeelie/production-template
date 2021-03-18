@@ -161,6 +161,14 @@
 
 	<div id="update_ok" style="display:none; font-size: 1.5em; color: #0a0; background-color: #ddd; padding: 0.5em; width: 95%;">{% trans "Check-ins submitted successfully!" %}</div>
 	<div id="update_error" style="display:none; font-size: 1.5em; color: #a00; background-color: #ddd; padding: 0.5em; width: 95%;">{% trans "Error submitting class check-in data." %}</div>
+	
+	<form id="quickreg_form" method="post" action="{% url 'submitQuickreg' %}">
+		{% csrf_token %}
+		{{ form.media }}
+		{{ form.as_p }}
+		<input class="btn btn-primary" type="submit" value="{% trans 'Submit Payment' %}" />
+	</form>
+
 {% endif %}
 
 <hr />
@@ -179,6 +187,8 @@
 	regParams = {
 		event: "{{ event.id }}",
 		ajaxUrl: "{% url 'ajax_checkin' %}",
+		basePrice: "{{ event.basePrice }}",
+		dropInPrice : "{{ event.pricingTier.dropinPrice }}"
 	}
 
 	function getCheckIns() {

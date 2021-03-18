@@ -1,0 +1,38 @@
+{% extends "cms/home.html" %}
+{% load cms_tags sekizai_tags i18n %}
+
+{% block content %}
+<form action="init/" method="post">
+    {% csrf_token %}
+    {{ init_form }}
+    <input type="submit" value="{% trans 'Init Table' %}">
+</form>
+<form method="post">
+    {% csrf_token %}
+    <style type="text/css">
+      table {
+        display: table;
+      }
+      table tr {
+        display: table-cell;
+      }
+      table tr td {
+        display: block;
+      }
+    </style>
+    <table class="table table-responsive" style="border-collapse: collapse; border-spacing: 0;">
+    <tr><td style="padding: 0px;">{% trans 'Competitors\Judges' %}</td>
+    {% for field in form %}
+      {% if field.name != 'outType' %}
+        {% if field.name|first in 'j' %}
+        </tr><tr>
+        {% endif %}
+        <td style="padding: 0px;">{{ field }}</td>
+      {% endif %}
+    {% endfor %}  
+    </tr></table>
+    
+    {{ form.outType }}
+    <input type="submit" value="{% trans 'Get Results' %}">
+</form>
+{% endblock %}

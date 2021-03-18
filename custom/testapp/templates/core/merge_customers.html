@@ -1,0 +1,11 @@
+{% extends "cms/admin_home.html" %}
+{% load sekizai_tags i18n %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.media }}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans 'Submit' %}" />
+</form>
+{% endblock %}
