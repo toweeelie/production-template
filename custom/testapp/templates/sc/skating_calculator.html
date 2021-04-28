@@ -18,20 +18,32 @@
       }
       table tr td {
         display: block;
+        min-height:30px;
       }
     </style>
     <table class="table table-responsive" style="border-collapse: collapse; border-spacing: 0;">
-    <tr><td style="padding: 0px;">{% trans 'Competitors\Judges' %}</td>
+    <tr style="position:sticky;left:0px;"><td style="padding: 0px; background-color:#fbead6;">{% trans 'Competitors\Judges' %}</td>
     {% for field in form %}
       {% if field.name != 'outType' %}
         {% if field.name|first in 'j' %}
-        </tr><tr>
+        </tr>
+          <!-- {% if field.name == 'j0' %}
+            </table><table class="table table-responsive" style="border-collapse: collapse; border-spacing: 0;">
+          {% endif %} -->
+        <tr>
         {% endif %}
         <td style="padding: 0px;">{{ field }}</td>
       {% endif %}
     {% endfor %}  
+    {% for col in skating %}
+        </tr><tr> 
+        {% for row in col %}
+        <td style="padding: 0px;min-width:50px;text-align:center;">{{ row }}</td>
+        {% endfor %} 
+    {% endfor %} 
     </tr></table>
-    
+    {{ form.non_field_errors }}
+    {{ form.outType.label }}
     {{ form.outType }}
     <input type="submit" value="{% trans 'Get Results' %}">
 </form>

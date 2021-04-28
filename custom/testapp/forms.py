@@ -4,6 +4,7 @@ from django.db.models import F, Q, Value, CharField
 from dal import autocomplete
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from danceschool.core.models import Customer, User, Event, Series
+from django.core.exceptions import ValidationError
 
 class QuickCustomerRegForm(forms.Form):
     '''
@@ -122,19 +123,27 @@ class SkatingCalculatorForm(forms.Form):
     '''
     Main Skating Calculator Form
     '''
-    outType = forms.ChoiceField(widget=forms.RadioSelect, choices=[('1', 'csv'), ('2', 'jpeg')], label='')
+    outType = forms.ChoiceField(widget=forms.RadioSelect, choices=[('1', 'inplace'), ('2', 'csv')], label=_('Results format:'))
 
     def __init__(self, *args, **kwargs):
-        judges = kwargs.pop('judges', 0)
-        competitors = kwargs.pop('competitors', 0)
+        self.judges = kwargs.pop('judges', 0)
+        self.competitors = kwargs.pop('competitors', 0)
 
         super(SkatingCalculatorForm, self).__init__(*args, **kwargs)
-
       
-        for cidx in range(0,competitors):
-            self.fields['c{0}'.format(cidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 100px'}))
+        for cidx in range(0,self.competitors):
+            self.fields['c{0}'.format(cidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 140px'}))
 
-        for jidx in range(0,judges):
+        for jidx in range(0,self.judges):
             self.fields['j{0}'.format(jidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 100px'}))
-            for cidx in range(0,competitors):
-                self.fields['p{0}_{1}'.format(jidx,cidx)] = forms.IntegerField(label='',widget=forms.NumberInput(attrs={'style': 'width: 100px'}),min_value=1,max_value=competitors)
+            for cidx in range(0,self.competitors):
+                self.fields['p{0}_{1}'.format(jidx,cidx)] = forms.IntegerField(label='',widget=forms.NumberInput(attrs={'style': 'width: 100px'}),min_value=1,max_value=self.competitors)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # check if there is no duplicated points in each judge column
+        for jidx in range(0,self.judges):
+            points = [ cleaned_data['p{0}_{1}'.format(jidx,cidx)] for cidx in range(0,self.competitors) ]
+            if len(points) != len(set(points)):
+                raise ValidationError(_('Judge {0} has points duplication').format(cleaned_data['j{0}'.format(jidx)]))

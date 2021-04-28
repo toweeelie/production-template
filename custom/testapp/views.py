@@ -159,19 +159,56 @@ class SkatingCalculatorView(FormView):
         competitors = self.request.session.get('competitors',0)
 
         sctable = []    
-
+        # write header
         sctable.append(['',]+[form.cleaned_data['j{0}'.format(jidx)] for jidx in range(0,judges)] + ['"1-{0}"'.format(p) for p in range(1,competitors+1)] + [_('Place'),])
 
-        for cidx in range(0,competitors):
+        for cidx in range(competitors):
+            # get points specific for competitor
             points = [ form.cleaned_data['p{0}_{1}'.format(jidx,cidx)] for jidx in range(0,judges) ]
 
-            places = [points.count(1),]
-            for p in range(2,competitors+1):
-                places.append(points.count(p)+places[-1])
+            # count points entries
+            entries = [points.count(1),]
+            for e in range(2,competitors+1):
+                entries.append(points.count(e)+entries[-1])
 
-            sctable.append([form.cleaned_data['c{0}'.format(cidx)],] + points + places)
+            # append row specific for competitor 
+            sctable.append([form.cleaned_data['c{0}'.format(cidx)],] + points + entries)
+
+        # calculate places
+        place = 1
+        majority = int(judges/2)+1
+        # go over entries columns
+        for pcol in range(competitors): 
+            # get dict of cidx:entry only if entry is ge majority
+            column = { cidx:comp[judges+1+pcol] for cidx,comp in enumerate(sctable[1:]) if comp[judges+1+pcol] >= majority }
+            # go over a dict sorted descending by entries
+            for cidx, val in sorted(column.items(), key=lambda kv:(kv[1], kv[0]), reverse=True): 
+                if list(column.values()).count(val) == 1:
+                    # if current entry is unique - assign the place 
+                    for p in range(pcol+1,competitors):
+                        sctable[cidx+1][judges+1+p] = 0
+                    sctable[cidx+1].append(place)
+                    place += 1
+                else: 
+                    # stop looking at current column if found equal entries
+                    break
+
+        # clean zeroes from the table
+        for ridx, row in enumerate(sctable):
+            for cidx, cell in enumerate(row):
+                if sctable[ridx][cidx] == 0:
+                    sctable[ridx][cidx] = ''
 
         if form.cleaned_data['outType'] == '1':
+            # display results inplace
+            return self.render_to_response(
+                self.get_context_data(
+                    form = form,
+                    skating = list(zip(*sctable))[judges+1:] # transpose the table and get only "entries+place" part
+                )
+            )
+        else: 
+            # write table to csv
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="skating.csv"'
 
@@ -182,5 +219,3 @@ class SkatingCalculatorView(FormView):
                 writer.writerow(row_data)
 
             return response
-        else: 
-            return HttpResponseRedirect(reverse('skatingCalculator'))   
