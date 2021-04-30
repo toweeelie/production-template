@@ -135,9 +135,9 @@ class SkatingCalculatorForm(forms.Form):
             self.fields['c{0}'.format(cidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 140px'}))
 
         for jidx in range(0,self.judges):
-            self.fields['j{0}'.format(jidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 100px'}))
+            self.fields['j{0}'.format(jidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 70px'}))
             for cidx in range(0,self.competitors):
-                self.fields['p{0}_{1}'.format(jidx,cidx)] = forms.IntegerField(label='',widget=forms.NumberInput(attrs={'style': 'width: 100px'}),min_value=1,max_value=self.competitors)
+                self.fields['p{0}_{1}'.format(jidx,cidx)] = forms.IntegerField(label='',widget=forms.NumberInput(attrs={'style': 'width: 70px'}),min_value=1,max_value=self.competitors)
 
     def clean(self):
         cleaned_data = super().clean()
