@@ -174,24 +174,52 @@ class SkatingCalculatorView(FormView):
             # append row specific for competitor 
             sctable.append([form.cleaned_data['c{0}'.format(cidx)],] + points + entries)
 
+        # define recursive skating procedure
+        def skating_rules(init_col,place,sub_sctable):
+            # go over entries columns
+            for pcol in range(init_col,competitors): 
+                # get list of (entry,sum,idx)
+                column = []
+                for cidx,comp in sub_sctable.items():
+                    # place is not set yet
+                    if len(comp) != len(sctable[0]):
+                        # entry is >= majority
+                        if comp[judges+1+pcol] >= majority:
+                            column.append((-comp[judges+1+pcol],sum([c for c in comp[1:judges+1] if c <= pcol+1]),cidx))
+                            
+                # go over a list sorted descending by occurences then ascending by sums
+                for cval,csum,cidx in sorted(column): 
+                    # if current (entry,sum) is unique
+                    if [(c[0],c[1]) for c in column].count((cval,csum)) == 1:
+                        # assign the place
+                        for p in range(pcol+1,competitors):
+                            sctable[cidx+1][judges+1+p] = 0
+                        sctable[cidx+1].append(place)
+                        place += 1
+                        # set sum tiebreaker if found equal entries
+                        if [c[0] for c in column].count(cval) != 1:
+                            sctable[cidx+1][judges+1+pcol] = str(sctable[cidx+1][judges+1+pcol]) + '(%d)' % csum
+                    # process only if place is not assigned for current competitor
+                    elif len(sctable[cidx+1]) != len(sctable[0]):
+                        # collect indexes of all equal cases
+                        equal_indexes =  [c[2] for c in column if c[0] == cval and c[1] == csum ]
+                        # write sums to show that there was no tiebreaker on this column
+                        for eidx in equal_indexes:
+                            sctable[eidx+1][judges+1+pcol] = str(sctable[eidx+1][judges+1+pcol]) + '(%d)' % csum
+                        # process search across the rest of the table for equal cases
+                        place = skating_rules(pcol+1, place, { i:l for i,l in sub_sctable.items() if i in equal_indexes })
+
+            # reached the end of the table, share several places among all equal cases
+            if init_col == competitors:
+                shared_places = '/'.join(map(str,range(place,len(sub_sctable)+1)))
+                for cidx in sub_sctable.keys():
+                    sctable[cidx+1].append(shared_places)
+                place += len(sub_sctable)
+            return place
+
         # calculate places
-        place = 1
         majority = int(judges/2)+1
-        # go over entries columns
-        for pcol in range(competitors): 
-            # get dict of cidx:entry only if entry is ge majority
-            column = { cidx:comp[judges+1+pcol] for cidx,comp in enumerate(sctable[1:]) if comp[judges+1+pcol] >= majority }
-            # go over a dict sorted descending by entries
-            for cidx, val in sorted(column.items(), key=lambda kv:(kv[1], kv[0]), reverse=True): 
-                if list(column.values()).count(val) == 1:
-                    # if current entry is unique - assign the place 
-                    for p in range(pcol+1,competitors):
-                        sctable[cidx+1][judges+1+p] = 0
-                    sctable[cidx+1].append(place)
-                    place += 1
-                else: 
-                    # stop looking at current column if found equal entries
-                    break
+        skating_rules(0, 1, { i:l for i,l in enumerate(sctable[1:]) })
 
         # clean zeroes from the table
         for ridx, row in enumerate(sctable):
