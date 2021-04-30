@@ -106,7 +106,7 @@ INSTALLED_APPS = [
 
     # ## These apps provide additional functionality and are optional,
     # ## but they are enabled by default:
-    'danceschool.financial',
+    # 'danceschool.financial',
     'danceschool.private_events',
     'danceschool.discounts',
     'danceschool.vouchers',
@@ -116,7 +116,9 @@ INSTALLED_APPS = [
     'danceschool.faq',
     'danceschool.banlist',
     'danceschool.guestlist',
-    #'danceschool.backups',
+    # 'danceschool.register',
+    # 'danceschool.merch',
+    # 'danceschool.backups',
 
     # ## Uncomment to add private lesson scheduling functionality:
     # 'danceschool.private_lessons',
@@ -176,7 +178,7 @@ INSTALLED_APPS = [
     'dal_select2',
 
     # This allows for custom date range filtering of financials, etc.
-    'daterange_filter',
+    'rangefilter',
 
     # Makes Django CMS prettier
     'djangocms_admin_style',
@@ -401,6 +403,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Required to ensure that Django CMS admin frames load with Django 3.0+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # AWS must be configured in the environment variables.  If it is
 # not configured, then the project will default to local storage.
