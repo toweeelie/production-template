@@ -211,7 +211,7 @@ class SkatingCalculatorView(FormView):
 
             # reached the end of the table, share several places among all equal cases
             if init_col == competitors:
-                shared_places = '/'.join(map(str,range(place,len(sub_sctable)+1)))
+                shared_places = '/'.join(map(str,range(place,place+len(sub_sctable))))
                 for cidx in sub_sctable.keys():
                     sctable[cidx+1].append(shared_places)
                 place += len(sub_sctable)
