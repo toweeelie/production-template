@@ -13,6 +13,7 @@ services:
       - private_media:/data/web/school/smedia
       - ./backups/web:/backup
       - ./custom:/data/web/custom
+      - ../django-danceschool:/data/web/src/django-danceschool
     secrets:
       - postgres_url
       - django_secret_key

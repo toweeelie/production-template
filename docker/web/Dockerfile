@@ -24,5 +24,6 @@ RUN apt -y autoremove
 
 # Prepare
 COPY ./school/ /data/web/school/
+RUN rm -rf /data/web/src/django-danceschool
 #RUN python3 manage.py compilemessages
 

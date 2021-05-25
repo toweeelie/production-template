@@ -15,8 +15,8 @@ from .forms import QuickCustomerRegForm, MergeCustomersForm, SkatingCalculatorFo
 import unicodecsv as csv
 
 #from danceschool.core.constants import getConstant, INVOICE_VALIDATION_STR
-from danceschool.core.models import Invoice#, TemporaryRegistration, CashPaymentRecord
-#from danceschool.core.helpers import getReturnPage
+from danceschool.core.models import Invoice, CashPaymentRecord#, TemporaryRegistration
+from danceschool.core.helpers import getReturnPage
 
 import logging
 
@@ -24,45 +24,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def handle_quickreg(request):
-    logger.info('Received request for quickreg at the door.')
-    form = QuickCustomerRegForm(request.POST)
-    if form.is_valid():
+class QuickCustomerRegView(FormView):
+    form_class = QuickCustomerRegForm
+    
+    def form_valid(self, form):
         payLater = form.cleaned_data.get('payLater')
         if payLater == True:
-            tr = form.cleaned_data.get('registration')
+            invoice = form.cleaned_data.get('invoice')
             instance = form.cleaned_data.get('instance')
 
-            invoice = Invoice.get_or_create_from_registration(
-                tr,
-                submissionUser=form.cleaned_data.get('submissionUser'),
-            )
-            invoice.finalRegistration = tr.finalize()
+            invoice.status = Invoice.PaymentStatus.unpaid
             invoice.save()
+
+            if getattr(invoice, 'registration', None):
+                invoice.registration.finalize()
             if instance:
                 return HttpResponseRedirect(instance.successPage.get_absolute_url())
         else:
-            tr = form.cleaned_data.get('registration')
             invoice = form.cleaned_data.get('invoice')
             amountPaid = form.cleaned_data.get('amountPaid')
             subUser = form.cleaned_data.get('submissionUser')
-            event = form.cleaned_data.get('event')
-            sourcePage = form.cleaned_data.get('sourcePage')
             paymentMethod = form.cleaned_data.get('paymentMethod')
             payerEmail = form.cleaned_data.get('payerEmail')
             receivedBy = form.cleaned_data.get('receivedBy')
 
-            if not tr and not invoice:
-                return HttpResponseBadRequest()
-
             if not invoice:
-                invoice = Invoice.get_or_create_from_registration(
-                    tr,
-                    submissionUser=subUser,
-                    email=payerEmail,
-                )
-                invoice.finalRegistration = tr.finalize()
-                invoice.save()
+                return HttpResponseBadRequest("No invoice")
 
             this_cash_payment = CashPaymentRecord.objects.create(
                 invoice=invoice, amount=amountPaid,
@@ -77,14 +64,10 @@ def handle_quickreg(request):
                 methodTxn='CASHPAYMENT_%s' % this_cash_payment.recordId,
                 forceFinalize=True,
             )
-
-            # Send users back to the invoice to confirm the successful payment.
-            # If none is specified, then return to the registration page.
-            returnPage = getReturnPage(request.session.get('SITE_HISTORY', {}))
-            if returnPage.get('url'):
-                return HttpResponseRedirect(returnPage['url'])
             return HttpResponseRedirect(reverse('registration'))
-    return HttpResponseBadRequest()
+
+    def form_invalid(self, form):
+        return HttpResponseBadRequest(str(form.errors))
 
 class MergeCustomersView(PermissionRequiredMixin, FormView):
     form_class = MergeCustomersForm
