@@ -106,7 +106,7 @@ INSTALLED_APPS = [
 
     # ## These apps provide additional functionality and are optional,
     # ## but they are enabled by default:
-    # 'danceschool.financial',
+    'danceschool.financial',
     'danceschool.private_events',
     'danceschool.discounts',
     'danceschool.vouchers',
@@ -116,8 +116,8 @@ INSTALLED_APPS = [
     'danceschool.faq',
     'danceschool.banlist',
     'danceschool.guestlist',
-    # 'danceschool.register',
-    # 'danceschool.merch',
+    'danceschool.register',
+    'danceschool.merch',
     # 'danceschool.backups',
 
     # ## Uncomment to add private lesson scheduling functionality:
