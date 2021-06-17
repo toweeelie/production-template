@@ -103,6 +103,7 @@ services:
       - private_media:/data/web/school/smedia
       - ./backups/web:/backup
       - ./custom:/data/web/custom
+      - ../django-danceschool:/data/web/src/django-danceschool
     working_dir: /data/web
     command: python3 manage.py run_huey
     networks:
