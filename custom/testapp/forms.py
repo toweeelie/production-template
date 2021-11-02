@@ -5,6 +5,8 @@ from dal import autocomplete
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from danceschool.core.models import Customer, User, Event, Series
 from django.core.exceptions import ValidationError
+from django_addanother.widgets import AddAnotherWidgetWrapper
+from django.urls import reverse_lazy
 
 class QuickCustomerRegForm(forms.Form):
     '''
@@ -13,24 +15,21 @@ class QuickCustomerRegForm(forms.Form):
 
     customer = forms.ModelChoiceField(
         queryset=Customer.objects.all(),
-        widget=#RelatedFieldWidgetWrapper(
-            autocomplete.ModelSelect2(
-                url='autocompleteCustomer',
-                attrs={
-                    # This will set the input placeholder attribute:
-                    'data-placeholder': _('Enter a customer name'),
-                    # This will set the yourlabs.Autocomplete.minimumCharacters
-                    # options, the naming conversion is handled by jQuery
-                    'data-minimum-input-length': 2,
-                    'data-max-results': 4,
-                    'class': 'modern-style',
-                }
-            ),
-            #rel=Series._meta.get_field('classDescription').remote_field,
-            #admin_site=None,
-            #can_add_related=True,
-            #can_change_related=True,
-        #)
+        widget = AddAnotherWidgetWrapper(
+                    autocomplete.ModelSelect2(
+                        url='autocompleteCustomer',
+                        attrs={
+                            # This will set the input placeholder attribute:
+                            'data-placeholder': _('Enter a customer name'),
+                            # This will set the yourlabs.Autocomplete.minimumCharacters
+                            # options, the naming conversion is handled by jQuery
+                            'data-minimum-input-length': 2,
+                            'data-max-results': 4,
+                            'class': 'modern-style',
+                        }
+                    ),
+                    reverse_lazy('admin:core_customer_add'),
+        )
     )
 
     role = forms.ChoiceField(
