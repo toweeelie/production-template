@@ -89,7 +89,6 @@ class QuickCustomerRegForm(forms.Form):
     class Media:
         js = (
             'admin/js/vendor/jquery/jquery.min.js',
-            'autocomplete_light/jquery.init.js',
             'js/quick_reg.js',
         )
 
