@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.http import HttpResponseBadRequest,HttpResponseRedirect,HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 from braces.views import UserFormKwargsMixin, PermissionRequiredMixin, LoginRequiredMixin, StaffuserRequiredMixin
 from danceschool.core.models import Customer
 from danceschool.core.views import EventRegistrationSummaryView
@@ -15,7 +17,8 @@ from .forms import QuickCustomerRegForm, MergeCustomersForm, SkatingCalculatorFo
 import unicodecsv as csv
 
 #from danceschool.core.constants import getConstant, INVOICE_VALIDATION_STR
-from danceschool.core.models import Invoice, CashPaymentRecord#, TemporaryRegistration
+from danceschool.core.models import Invoice, CashPaymentRecord, Registration, EventRegistration, DanceRole
+from danceschool.core.constants import getConstant
 from danceschool.core.helpers import getReturnPage
 
 import logging
@@ -29,8 +32,32 @@ class QuickCustomerRegView(FormView):
     
     def form_valid(self, form):
         payLater = form.cleaned_data.get('payLater')
+        amountPaid = form.cleaned_data.get('amountPaid')
+        subUser = form.cleaned_data.get('submissionUser')
+        payerEmail = form.cleaned_data.get('payerEmail')
+        receivedBy = form.cleaned_data.get('receivedBy')
+        event = form.cleaned_data.get('event')
+        customer = form.cleaned_data.get('customer')
+        role = form.cleaned_data.get('role')
+        dropIn = form.cleaned_data.get('dropIn')
+        expiry = timezone.now() + timedelta(minutes=getConstant('registration__sessionExpiryMinutes'))
+
+        reg = Registration(
+                submissionUser=subUser, dateTime=timezone.now(),
+                payAtDoor=payLater,
+            )
+
+        invoice = reg.link_invoice(expirationDate=expiry)
+        reg.save()
+
+        tr = EventRegistration(
+                customer=customer, event=event, dropIn=dropIn #, role_id=role
+            )
+
+        tr.registration = reg
+        tr.save()
+
         if payLater == True:
-            invoice = form.cleaned_data.get('invoice')
             instance = form.cleaned_data.get('instance')
 
             invoice.status = Invoice.PaymentStatus.unpaid
@@ -38,15 +65,15 @@ class QuickCustomerRegView(FormView):
 
             if getattr(invoice, 'registration', None):
                 invoice.registration.finalize()
+                #return HttpResponseRedirect(self.get_success_url())
+                #return self.render_to_response(self.get_context_data(form = form))
+                return HttpResponseRedirect(reverse('viewregistrations',
+                                                    kwargs={'event_id':event.id}))
             if instance:
                 return HttpResponseRedirect(instance.successPage.get_absolute_url())
         else:
-            invoice = form.cleaned_data.get('invoice')
-            amountPaid = form.cleaned_data.get('amountPaid')
-            subUser = form.cleaned_data.get('submissionUser')
+
             paymentMethod = form.cleaned_data.get('paymentMethod')
-            payerEmail = form.cleaned_data.get('payerEmail')
-            receivedBy = form.cleaned_data.get('receivedBy')
 
             if not invoice:
                 return HttpResponseBadRequest("No invoice")
