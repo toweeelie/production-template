@@ -40,40 +40,38 @@ class QuickCustomerRegView(FormView):
         customer = form.cleaned_data.get('customer')
         role = form.cleaned_data.get('role')
         dropIn = form.cleaned_data.get('dropIn')
+        occurrence = form.cleaned_data.get('eventOccurrence')
         expiry = timezone.now() + timedelta(minutes=getConstant('registration__sessionExpiryMinutes'))
 
         reg = Registration(
                 submissionUser=subUser, dateTime=timezone.now(),
-                payAtDoor=payLater,
+                payAtDoor=True,
             )
 
         invoice = reg.link_invoice(expirationDate=expiry)
         reg.save()
 
         tr = EventRegistration(
-                customer=customer, event=event, dropIn=dropIn #, role_id=role
+                customer=customer, event=event, 
+                dropIn=dropIn, role_id=role,
             )
+        if dropIn:
+            tr.data['__dropInOccurrences'] = [occurrence]
 
         tr.registration = reg
         tr.save()
 
         if payLater == True:
-            instance = form.cleaned_data.get('instance')
-
             invoice.status = Invoice.PaymentStatus.unpaid
             invoice.save()
 
             if getattr(invoice, 'registration', None):
                 invoice.registration.finalize()
-                #return HttpResponseRedirect(self.get_success_url())
-                #return self.render_to_response(self.get_context_data(form = form))
                 return HttpResponseRedirect(reverse('viewregistrations',
                                                     kwargs={'event_id':event.id}))
-            if instance:
-                return HttpResponseRedirect(instance.successPage.get_absolute_url())
         else:
 
-            paymentMethod = form.cleaned_data.get('paymentMethod')
+            paymentMethod = form.cleaned_data.get('paymentMethod','Cash')
 
             if not invoice:
                 return HttpResponseBadRequest("No invoice")
@@ -91,7 +89,8 @@ class QuickCustomerRegView(FormView):
                 methodTxn='CASHPAYMENT_%s' % this_cash_payment.recordId,
                 forceFinalize=True,
             )
-            return HttpResponseRedirect(reverse('registration'))
+            return HttpResponseRedirect(reverse('viewregistrations',
+                                                kwargs={'event_id':event.id}))
 
     def form_invalid(self, form):
         return HttpResponseBadRequest(str(form.errors))

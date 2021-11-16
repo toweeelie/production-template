@@ -3,7 +3,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from django.db.models import F, Q, Value, CharField
 from dal import autocomplete
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
-from danceschool.core.models import Customer, User, Event, Series
+from danceschool.core.models import Customer, User, Event, EventOccurrence, Series
 from django.core.exceptions import ValidationError
 from django_addanother.widgets import AddAnotherWidgetWrapper
 from django.urls import reverse_lazy
@@ -68,15 +68,23 @@ class QuickCustomerRegForm(forms.Form):
         widget = forms.HiddenInput()
     )
 
+    eventOccurrence = forms.ModelChoiceField(
+        queryset=EventOccurrence.objects.all(), 
+        required=True, 
+        widget = forms.HiddenInput()
+    )
+
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         event = kwargs.pop('object', None)
         subUser = getattr(user, 'id', None)
         fullSeriesPrice = getattr(event, 'basePrice', None)
+        eventOccurrence = getattr(event, 'nextOccurrenceForToday', None)
         kwargs.update(initial={
             'receivedBy': subUser,
             'amountPaid' : fullSeriesPrice,
-            'event' : event
+            'event' : event,
+            'eventOccurrence' : eventOccurrence,
         })
 
         super(QuickCustomerRegForm, self).__init__(*args, **kwargs)
