@@ -56,12 +56,16 @@
 			{% if reg.customer %}
 				{{ reg.customer.fullName }}
 				<br /><a href="mailto:{{ reg.customer.email }}">{{ reg.customer.email }}</a>
-				<br /><a href="tel:{{ reg.customer.phone }}">{{ reg.customer.phone }}</a>
+				{% if reg.customer.phone %}
+					<br /><a href="tel:{{ reg.customer.phone }}">{{ reg.customer.phone }}</a>
+				{% endif %}
 			{% elif reg.registration.invoice.fullName or reg.registration.invoice.email %}
 				{{ reg.registration.invoice.fullName }}
 				{% if reg.registration.invoice.fullName %}<br />{% endif %}
 				<a href="mailto:{{ reg.registration.invoice.email }}">{{ reg.registration.invoice.email }}</a>
-				<br /><a href="mailto:{{ reg.registration.invoice.phone }}">{{ reg.registration.invoice.phone }}</a>
+				{% if reg.registration.invoice.phone %}
+					<br /><a href="mailto:{{ reg.registration.invoice.phone }}">{{ reg.registration.invoice.phone }}</a>
+				{% endif %}
 			{% else %}
 				{% trans "N/A" %}
 			{% endif %}
@@ -288,6 +292,9 @@
 	$('#occurrenceSelect').change(function() {
 		$('.checkInCheckbox').removeData('existing');
 		getCheckIns();
+		// update quickregform with new eventOccurrence
+		var thisOccurrence = $("#occurrenceSelect").children("option:selected").val();
+		$("#id_eventOccurrence").val(thisOccurrence);
 	});
 
 	// Use Jquery to get the cookie value of the CSRF token

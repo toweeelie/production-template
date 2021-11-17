@@ -89,10 +89,10 @@ class QuickCustomerRegForm(forms.Form):
 
         super(QuickCustomerRegForm, self).__init__(*args, **kwargs)
 
+        if event == None:
+            event = Event.objects.get(id=kwargs['data']['event'])
         setattr(self.fields['role'],'choices',
-            [(i,x) for i,x in enumerate(getattr(event, 'availableRoles',['L','F']))])
-
-        #setattr(getattr(self.fields['customer'],'widget',None),'admin_site',self.admin_site)
+            [(int(x.order),x) for x in getattr(event, 'availableRoles')])
 
     class Media:
         js = (

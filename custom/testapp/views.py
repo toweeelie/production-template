@@ -55,27 +55,23 @@ class QuickCustomerRegView(FormView):
                 customer=customer, event=event, 
                 dropIn=dropIn, role_id=role,
             )
+
         if dropIn:
-            tr.data['__dropInOccurrences'] = [occurrence]
+            dropInList = [occurrence.id]
+            tr.data['__dropInOccurrences'] = dropInList
+            price = event.getBasePrice(dropIns=len(dropInList))
+        else:
+            price = event.getBasePrice(payAtDoor=reg.payAtDoor)
 
         tr.registration = reg
-        tr.save()
+        tr.save(grossTotal=price, total=price)
 
         if payLater == True:
             invoice.status = Invoice.PaymentStatus.unpaid
             invoice.save()
-
-            if getattr(invoice, 'registration', None):
-                invoice.registration.finalize()
-                return HttpResponseRedirect(reverse('viewregistrations',
-                                                    kwargs={'event_id':event.id}))
+            invoice.registration.finalize()
         else:
-
             paymentMethod = form.cleaned_data.get('paymentMethod','Cash')
-
-            if not invoice:
-                return HttpResponseBadRequest("No invoice")
-
             this_cash_payment = CashPaymentRecord.objects.create(
                 invoice=invoice, amount=amountPaid,
                 status=CashPaymentRecord.PaymentStatus.collected,
@@ -89,8 +85,9 @@ class QuickCustomerRegView(FormView):
                 methodTxn='CASHPAYMENT_%s' % this_cash_payment.recordId,
                 forceFinalize=True,
             )
-            return HttpResponseRedirect(reverse('viewregistrations',
-                                                kwargs={'event_id':event.id}))
+
+        return HttpResponseRedirect(reverse('viewregistrations',
+                                            kwargs={'event_id':event.id}))
 
     def form_invalid(self, form):
         return HttpResponseBadRequest(str(form.errors))
