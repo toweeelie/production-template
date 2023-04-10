@@ -358,14 +358,14 @@ LOGGING = {
 LANGUAGES = [
   ('en', u'EN'),
   ('uk', u'UA'),
-  ('ru', u'RU'),
+  #('ru', u'RU'),
 ]
 
 PARLER_LANGUAGES = {
     1: (
         {'code': 'en',},
         {'code': 'uk',},
-        {'code': 'ru',},
+        #{'code': 'ru',},
     ),
     'default': {
         'fallbacks': ['en'],          # defaults to PARLER_DEFAULT_LANGUAGE_CODE
