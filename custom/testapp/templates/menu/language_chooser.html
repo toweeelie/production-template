@@ -4,15 +4,17 @@
 {% get_language_info for current_language as lang %}
 <li class="nav-item dropdown">
 	{% for language in languages %}
-	{% if current_language == language.0 %}
-		<a class="nav-link dropdown-toggle pl-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ language.1 }}<span class="caret"></span></a>
-	{% endif %}
+		{% if current_language == language.0 %}
+			<a class="nav-link dropdown-toggle pl-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ language.1 }}<span class="caret"></span></a>
+		{% endif %}
 	{% endfor %}
 	
 	<ul class="dropdown-menu dropdown-menu-right" style="min-width: 3rem; position: absolute;">
 		{% for language in languages %}
-			{% if current_language != language.0 %}
-				<li><a href="{% page_language_url language.0 %}" class="dropdown-item">{{ language.1 }}</a></li>
+			{% if language.0 != "ru" %}
+				{% if current_language != language.0 %}
+					<li><a href="{% page_language_url language.0 %}" class="dropdown-item">{{ language.1 }}</a></li>
+				{% endif %}
 			{% endif %}
 		{% endfor %}
 	</ul>
