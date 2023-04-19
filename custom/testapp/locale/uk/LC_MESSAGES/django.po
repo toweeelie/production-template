@@ -65,8 +65,8 @@ msgid "Toggle navigation"
 msgstr "Перемикач навігації"
 
 #: templates/cms/navbar.html:34
-msgid "Kuva"
-msgstr "Кува"
+msgid "Serhii"
+msgstr "Сергій"
 
 #: templates/cms/navbar.html:35
 msgid "Maria"
