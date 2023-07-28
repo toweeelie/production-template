@@ -1,5 +1,5 @@
 {% extends "cms/home.html" %}
-{% load danceschool_tags sekizai_tags cms_tags i18n %}
+{% load danceschool_tags sekizai_tags cms_tags i18n static %}
 
 {% block content %}
 
@@ -78,11 +78,35 @@
 	{% endif %}
 
     {% if subscription %}
+		<form method="post">
+			{% csrf_token %}
+			{{ form }}
+			<input type="submit" value="{% trans 'Set date range' %}">
+		</form>
         <p>
         {% for info_line in subscription %}
             {{ info_line }}<br>
         {% endfor %}
         </p>
+
+		{% addtoblock "css" %}
+			<link rel="stylesheet" href="{% static 'bootstrap-datepicker/css/bootstrap-datepicker.standalone.min.css' %}">
+		{% endaddtoblock %}
+		{% addtoblock "js" %}
+			<!--<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+			<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>-->
+			<script src='{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}'></script>
+			<script src='{% static 'bootstrap-datepicker/locales/bootstrap-datepicker.uk.min.js' %}' charset="UTF-8"></script>
+		{% endaddtoblock %}
+		{% addtoblock "js" %}
+			<script type="text/javascript">
+			$(document).ready(function() {
+				$('#id_startDate').datepicker({language: '{{ LANGUAGE_CODE }}'});
+				$('#id_endDate').datepicker({language: '{{ LANGUAGE_CODE }}'});
+			});
+			</script>
+		{% endaddtoblock %}
+
     {% else %}
         <p>{% blocktrans %}It looks like you are not yet a customer.{% endblocktrans %}</p>
     {% endif %}

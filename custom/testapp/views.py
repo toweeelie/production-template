@@ -253,3 +253,49 @@ class SkatingCalculatorView(FormView):
                 writer.writerow(row_data)
 
             return response
+
+from .models import Competition,PrelimsRegistration
+from .forms import CompetitionRegForm
+from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.db import IntegrityError
+
+class CompetitionViev(ListView):
+    model = Competition
+    template_name = 'sc/comp_list.html'
+    context_object_name = 'competitions'
+
+def register_competitor(request, comp_id):
+    comp = Competition.objects.get(id=comp_id)
+    
+    if request.method == 'POST':
+        form = CompetitionRegForm(request.POST,initial={'comp': comp})
+        if form.is_valid():
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            comp_role_id = form.cleaned_data['comp_role']
+            comp_role = get_object_or_404(DanceRole, id=comp_role_id)
+
+            comp_roles = list(comp.comp_roles.all())
+
+            competitor, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
+
+            comp_num = PrelimsRegistration.objects.filter(comp=comp,comp_role=comp_role).count() + 1
+            comp_num = len(comp_roles)*comp_num-comp_roles.index(comp_role)
+            try:
+                prelims_reg_obj = PrelimsRegistration.objects.create(
+                    competitor=competitor, comp_num=comp_num, comp=comp, comp_role=comp_role)
+
+                competitor.save()
+            
+                prelims_reg_obj.save()
+                return render(request, 'sc/comp_success.html', {'comp_num':comp_num})
+            except IntegrityError:
+                # Handle the unique constraint violation
+                error_message = _("This competitor is already registered to competition.")
+                return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp,'error_message':error_message})
+    else:
+        form = CompetitionRegForm(initial={'comp': comp})
+    
+    return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp})

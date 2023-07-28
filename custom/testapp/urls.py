@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib import admin
-from .views import MergeCustomersView,QuickCustomerRegView,SkatingCalculatorView 
+from .views import MergeCustomersView,QuickCustomerRegView,SkatingCalculatorView,CompetitionViev,register_competitor
 
 admin.autodiscover()
 
@@ -9,4 +9,6 @@ urlpatterns = [
     path('registrations/quickreg/', QuickCustomerRegView.as_view(), name='submitQuickreg'),
     path('skatingcalculator/', SkatingCalculatorView.as_view(), name='skatingCalculator'),
     path('skatingcalculator/init/', SkatingCalculatorView.init_tab, name='scinit'),
+    path('competitions/', CompetitionViev.as_view(), name='competitions'),
+    path('competitions/<int:comp_id>/register/', register_competitor, name='register_competitor'),
 ]

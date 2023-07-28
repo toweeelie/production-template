@@ -405,18 +405,23 @@ echo -e "Welcome to the Docker stack initialization script.\n\n"
 # Fix UTF-8 issue on Macs
 export LC_CTYPE=C
 
+#ssh root@hotboogie.com.ua 'docker save alpine:latest | bzip2' | pv | bunzip2 | docker load
+#ssh root@hotboogie.com.ua 'docker save postgres:10.6 | bzip2' | pv | bunzip2 | docker load
+#ssh root@hotboogie.com.ua 'docker save danceschool_web:latest | bzip2' | pv | bunzip2 | docker load
+
+
 swarm_initialize
 create_volumes
 check_postgres_secrets
 check_secret_key
-check_ssl_certs
-build_nginx
-build_web
-database_setup
+#check_ssl_certs
+#build_nginx
+#build_web
+#database_setup
 
 
 echo -e "Setup complete!"
 echo -e "Starting original stack"
 
-docker stack deploy -c ../docker-compose.yml school
+#docker stack deploy -c ../docker-compose.yml school
 echo -e "All done!"

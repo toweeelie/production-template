@@ -7,6 +7,7 @@ from danceschool.core.models import Customer, User, Event, EventOccurrence, Seri
 from django.core.exceptions import ValidationError
 from django_addanother.widgets import AddAnotherWidgetWrapper
 from django.urls import reverse_lazy
+from datetime import datetime
 
 class QuickCustomerRegForm(forms.Form):
     '''
@@ -153,3 +154,93 @@ class SkatingCalculatorForm(forms.Form):
             points = [ cleaned_data['p{0}_{1}'.format(jidx,cidx)] for cidx in range(0,self.competitors) ]
             if len(points) != len(set(points)):
                 raise ValidationError(_('Judge {0} has points duplication').format(cleaned_data['j{0}'.format(jidx)]))
+
+class ProfileChooseDateForm(forms.Form):
+    '''
+    This form helps customers to view their monthly stats
+    '''
+    startDate = forms.DateField(
+        label = '',
+        initial = datetime.now(),
+        #widget = forms.SelectDateWidget(
+        #    years=range(2010,datetime.now().year+1),
+        #),
+        widget = forms.DateInput(attrs={'type': 'text'})
+    )
+    endDate = forms.DateField(
+        label = '',
+        initial = datetime.now(),
+        widget = forms.DateInput(attrs={'type': 'text'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        initial = kwargs.get('initial', {})
+        initial['startDate'] = kwargs.pop('startDate', datetime.now().replace(day=1))
+        initial['endDate'] = kwargs.pop('endDate', datetime.now())
+        kwargs['initial'] = initial
+        super(ProfileChooseDateForm, self).__init__(*args, **kwargs)
+
+
+from danceschool.core.models import Customer,DanceRole
+from .models import Competition,PrelimsRegistration
+
+class CompetitionRegForm(forms.Form):
+    '''
+    Form for competition registration
+    '''
+    first_name = forms.CharField(max_length=100,label=_('First Name'))
+    last_name = forms.CharField(max_length=100,label=_('Last Name'))
+    email = forms.EmailField(max_length=100,label=_('Email'))
+    comp_role = forms.ChoiceField(choices=[],label=_('Dance Role'))
+
+    class Meta:
+        model = Customer
+        fields = ('first_name','last_name','email')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        comp = self.initial.get('comp')
+        if comp:
+            comp_roles = comp.comp_roles.all()
+            self.fields['comp_role'].choices = [(role.id, role.name) for role in comp_roles]
+
+
+'''
+    firstName = forms.CharField(label=_('First name'))
+    lastName = forms.CharField(label=_('Last name'))
+    role = forms.ChoiceField(
+        label=_('Dance Role'),
+        widget=forms.RadioSelect,
+        choices=[('0','Leader'),('1','Follower')]
+    )
+
+    coupleReg = forms.BooleanField(label=_('Couple Registration'), required=False, initial=False)
+
+    partnersFirstName = forms.CharField(label=_('First name'), required=False)
+    partnersLastName = forms.CharField(label=_('Last name'), required=False)
+
+    def clean(self):
+        cleaned_data = super.clean()
+        coupleReg = cleaned_data.get('coupleReg')
+
+        if coupleReg:
+            if not cleaned_data.get('partnersFirstName') or not cleaned_data.get('partnersLastName'):
+                raise forms.ValidationError(_('All fields are mandatory if couple registration is choosed.'))
+'''  '''          
+class PrelimsJudgeForm(forms.Form):
+    
+    Form for prelims judging
+    
+
+    def __init__(self, *args, **kwargs):
+        
+        self.competitors = kwargs.pop('competitors', 0)
+
+        super(PrelimsJudgeForm, self).__init__(*args, **kwargs)
+
+        for cidx in range(0,self.competitors):
+            self.fields['c{0}'.format(cidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 140px'}))
+            
+            
+'''
