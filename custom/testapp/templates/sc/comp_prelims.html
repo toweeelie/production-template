@@ -3,16 +3,15 @@
 
 {% block content %}
 <table>
-    <thead>
+    {% for comp_role,role_dict in results_dict.items %}
+        <tr><td>{{ comp_role }}</td></tr>
         <tr>
-            <th></th>
-            {% for judge in judges %}
-                <th>{{ judge }}</th>
+            <td></td>
+            {% for judge in role_dict.judges %}
+                <td>{{ judge }}</td>
             {% endfor %}
         </tr>
-    </thead>
-    <tbody>
-        {% for reg,results_row in results_dict.items %}
+        {% for reg,results_row in role_dict.results.items %}
             <tr>
                 <td>{{ reg.comp_num }} {{ reg.competitor.fullName }}</td>
                 {% for res in results_row %}
@@ -20,6 +19,7 @@
                 {% endfor %}
             </tr>
         {% endfor %}
-    </tbody>
+    {% endfor %}
+
 </table>
 {% endblock %}

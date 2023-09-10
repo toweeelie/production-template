@@ -358,28 +358,32 @@ def prelims_results(request, comp_id):
                 'error_message': error_message,
             }
             return render(request, 'sc/comp_prelims.html', context)
-
-    registrations = PrelimsRegistration.objects.filter(comp=comp).order_by('comp_role', 'comp_num')
-    results_dict = {}
-    for reg in registrations:
-        results_dict[reg] = []
-        for judge in judges:
-            result = PrelimsResult.objects.filter(comp=comp, judge=judge, comp_reg=reg).first()
-            results_dict[reg].append('')
-            if result:
-                results_dict[reg][-1] = result.get_result_display()
-        if '' not in results_dict[reg]:
-            res_num = results_dict[reg].count('Y') + 0.5*results_dict[reg].count('Mb')
-            results_dict[reg].append(res_num)
     
-    distinct_judges = PrelimsResult.objects.values('judge').distinct()
-    judges = [j.first_name for j in judges]
-    if len(judges) == len (distinct_judges):
-        judges.append('')
+    all_results_available = True
+    role_results_dict = {}
+    for comp_role in comp.comp_roles.all():
+        registrations = PrelimsRegistration.objects.filter(comp=comp,comp_role=comp_role).order_by('comp_role', 'comp_num')
+        role_judges = [j.profile for j in Judge.objects.filter(comp=comp,prelims_role=comp_role)]
+        results_dict={}
+        for reg in registrations:
+            results_dict[reg] = []
+            for judge in role_judges:
+                result = PrelimsResult.objects.filter(comp=comp, judge=judge, comp_reg=reg).first()
+                if result:
+                    results_dict[reg].append(result.get_result_display())
+                else:
+                    all_results_available = False
+                    results_dict[reg].append('')
+            if all_results_available:
+                res_num = results_dict[reg].count('Y') + 0.5*results_dict[reg].count('Mb')
+                results_dict[reg].append(res_num)
+        role_results_dict[comp_role.pluralName] = {'judges':[j.first_name for j in role_judges],'results':results_dict}
+    
+        if all_results_available:
+            role_results_dict[comp_role.pluralName]['judges'].append('')
 
     context = {
-        'judges': judges,
-        'results_dict': results_dict,
+        'results_dict': role_results_dict,
     }
 
     return render(request, 'sc/comp_prelims.html', context)
