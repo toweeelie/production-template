@@ -4,16 +4,17 @@
 {% block content %}
 <table>
     {% for comp_role,role_dict in results_dict.items %}
-        <tr><td>{{ comp_role }}</td></tr>
         <tr>
-            <td></td>
+            <th></th>
+            <th>{{ comp_role }}</th>
             {% for judge in role_dict.judges %}
-                <td>{{ judge }}</td>
+                <th>{{ judge }}</th>
             {% endfor %}
         </tr>
         {% for reg,results_row in role_dict.results.items %}
             <tr>
-                <td>{{ reg.comp_num }} {{ reg.competitor.fullName }}</td>
+                <td>{{ reg.comp_num }} </td>
+                <td>{{ reg.competitor.fullName }}</td>
                 {% for res in results_row %}
                     <td>{{ res }}</td>
                 {% endfor %}
@@ -22,4 +23,7 @@
     {% endfor %}
 
 </table>
+{% if error_message %}
+<p class="error">{{ error_message }}</p>
+{% endif %}
 {% endblock %}

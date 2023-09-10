@@ -377,10 +377,14 @@ def prelims_results(request, comp_id):
             if all_results_available:
                 res_num = results_dict[reg].count('Y') + 0.5*results_dict[reg].count('Mb')
                 results_dict[reg].append(res_num)
+
+        if all_results_available:
+            results_dict = dict(sorted(results_dict.items(), key=lambda item: (item[1][-1],item[1].count('Y')), reverse=True))
+
         role_results_dict[comp_role.pluralName] = {'judges':[j.first_name for j in role_judges],'results':results_dict}
     
-        if all_results_available:
-            role_results_dict[comp_role.pluralName]['judges'].append('')
+        #if all_results_available:
+        #    role_results_dict[comp_role.pluralName]['judges'].append('')
 
     context = {
         'results_dict': role_results_dict,

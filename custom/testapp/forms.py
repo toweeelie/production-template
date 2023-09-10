@@ -227,41 +227,17 @@ class PrelimsResultsForm(forms.Form):
                     required=True,
                 )
 
-'''
-    firstName = forms.CharField(label=_('First name'))
-    lastName = forms.CharField(label=_('Last name'))
-    role = forms.ChoiceField(
-        label=_('Dance Role'),
-        widget=forms.RadioSelect,
-        choices=[('0','Leader'),('1','Follower')]
-    )
-
-    coupleReg = forms.BooleanField(label=_('Couple Registration'), required=False, initial=False)
-
-    partnersFirstName = forms.CharField(label=_('First name'), required=False)
-    partnersLastName = forms.CharField(label=_('Last name'), required=False)
-
     def clean(self):
-        cleaned_data = super.clean()
-        coupleReg = cleaned_data.get('coupleReg')
+        cleaned_data = super().clean()
+        results = list(cleaned_data.values())
+        comp = self.initial.get('comp')
 
-        if coupleReg:
-            if not cleaned_data.get('partnersFirstName') or not cleaned_data.get('partnersLastName'):
-                raise forms.ValidationError(_('All fields are mandatory if couple registration is choosed.'))
-'''  '''          
-class PrelimsJudgeForm(forms.Form):
-    
-    Form for prelims judging
-    
-
-    def __init__(self, *args, **kwargs):
-        
-        self.competitors = kwargs.pop('competitors', 0)
-
-        super(PrelimsJudgeForm, self).__init__(*args, **kwargs)
-
-        for cidx in range(0,self.competitors):
-            self.fields['c{0}'.format(cidx)] = forms.CharField(label='',widget=forms.TextInput(attrs={'style': 'width: 140px'}))
+        # check if enough Y and Mb were choosen
+        if results and comp:
+            Y_num = comp.finalists_number-1
+            count_y = results.count('yes')
+            count_mb = results.count('maybe')
+            if count_y != Y_num or count_mb != 2:
+                raise ValidationError(_(f"There should be {Y_num} 'Y' and 2 'Mb' marks"))
             
-            
-'''
+        return cleaned_data

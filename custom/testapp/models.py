@@ -19,6 +19,9 @@ class Competition(models.Model):
     comp_roles = models.ManyToManyField(
         DanceRole, verbose_name=_('Dance roles'),
     )
+    finalists_number = models.IntegerField(
+        verbose_name=_('Number of finalists per dance role'),
+    )
     pair_finalists = models.BooleanField(
         _('Paired Final'), default=True, blank=True
     )
