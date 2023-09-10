@@ -16,22 +16,37 @@ class Competition(models.Model):
         _('Competition name'),
         max_length=200,
     )
-
-    judjes = models.ManyToManyField(
-        User, verbose_name=_('Judjes'),
-    )
-
     comp_roles = models.ManyToManyField(
         DanceRole, verbose_name=_('Dance roles'),
     )
-
-    pairFinalists = models.BooleanField(
+    pair_finalists = models.BooleanField(
         _('Paired Final'), default=True, blank=True
     )
-
-    resultsVisible = models.BooleanField(
+    results_visible = models.BooleanField(
         _('Publish results'), default=False, blank=False
     )
+
+class Judge(models.Model):
+    '''
+    Judge model
+    '''
+    profile = models.ForeignKey(
+        User, on_delete=models.CASCADE
+    )
+    comp = models.ForeignKey(
+        Competition, on_delete=models.CASCADE
+    )
+    prelims = models.BooleanField(
+        _('Judging Prelims'), default=False
+    )
+    finals = models.BooleanField(
+        _('Judging Finals'), default=False
+    )
+    prelims_role = models.ForeignKey(
+        DanceRole, on_delete=models.CASCADE
+    )
+    class Meta:
+        unique_together = ('profile', 'comp')
 
 class PrelimsRegistration(models.Model):
     '''
@@ -53,3 +68,21 @@ class PrelimsRegistration(models.Model):
 
     class Meta:
         unique_together = ('comp', 'competitor')
+
+class PrelimsResult(models.Model):
+    '''
+    Prelims results
+    '''
+    JUDGE_CHOICES = (
+        ('yes', 'Y'),
+        ('maybe', 'Mb'),
+        ('no', ''),
+    )
+
+    comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
+    judge = models.ForeignKey(User, on_delete=models.CASCADE)
+    comp_reg = models.ForeignKey(PrelimsRegistration, on_delete=models.CASCADE)
+    result = models.CharField(max_length=10, choices=JUDGE_CHOICES, default='no')
+
+    class Meta:
+        unique_together = ('comp', 'judge', 'comp_reg')

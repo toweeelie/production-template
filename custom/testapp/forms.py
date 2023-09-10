@@ -183,6 +183,7 @@ class ProfileChooseDateForm(forms.Form):
 
 from danceschool.core.models import Customer,DanceRole
 from .models import Competition,PrelimsRegistration
+from django.utils.html import format_html
 
 class CompetitionRegForm(forms.Form):
     '''
@@ -205,6 +206,26 @@ class CompetitionRegForm(forms.Form):
             comp_roles = comp.comp_roles.all()
             self.fields['comp_role'].choices = [(role.id, role.name) for role in comp_roles]
 
+class PrelimsResultsForm(forms.Form):
+    '''
+    Form for prelims results
+    '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+       
+        registrations = self.initial.get('registrations')
+        for registration in registrations:
+            if registration.comp_checked_in:
+                self.fields[f'competitor_{registration.comp_num}'] = forms.ChoiceField(
+                    label=f'{registration.comp_num} {registration.competitor.fullName}',
+                    choices=[
+                        ('no', ''),
+                        ('maybe', 'Mb'),
+                        ('yes', 'Y'),
+                    ],
+                    #widget=TriStateCheckboxInput(),
+                    required=True,
+                )
 
 '''
     firstName = forms.CharField(label=_('First name'))

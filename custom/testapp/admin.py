@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from danceschool.core.admin import CustomerAdmin
 
-from .models import Competition,PrelimsRegistration
+from .models import Competition,PrelimsRegistration,Judge
 
 def mergeCustomers(self, request, queryset):
     # Allows use of the email view to contact specific customers.
@@ -21,10 +21,14 @@ class PrelimsRegistrationInline(admin.TabularInline):
     model = PrelimsRegistration
     extra = 1
 
+class JudgeInline(admin.TabularInline):
+    model = Judge
+    extra = 1
+
 @admin.register(Competition)
 class CompetitionAdmin(admin.ModelAdmin):
-    list_display = ('title','resultsVisible')
-    inlines = [PrelimsRegistrationInline]
+    list_display = ('title','results_visible')
+    inlines = [JudgeInline,PrelimsRegistrationInline]
 
 @admin.register(PrelimsRegistration)
 class PrelimsRegistrationAdmin(admin.ModelAdmin):

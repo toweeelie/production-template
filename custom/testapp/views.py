@@ -254,16 +254,35 @@ class SkatingCalculatorView(FormView):
 
             return response
 
-from .models import Competition,PrelimsRegistration
-from .forms import CompetitionRegForm
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
+from .models import Competition,PrelimsRegistration,PrelimsResult,Judge
+from .forms import CompetitionRegForm,PrelimsResultsForm
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 class CompetitionViev(ListView):
     model = Competition
     template_name = 'sc/comp_list.html'
     context_object_name = 'competitions'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user  # Get the current user
+
+        # Create a dict to store whether the user is a judge for each competition
+        is_judge_dict = {}
+
+        # Check if the user is a judge for each competition in the queryset
+        for comp in context['competitions']:
+            judges = Judge.objects.filter(comp=comp)
+            is_judge = user.is_authenticated and user in [j.profile for j in judges]
+            is_judge_dict[comp] = is_judge
+
+        # Add the dict of judge status to the context
+        context['is_judge_dict'] = is_judge_dict
+
+        return context
 
 def register_competitor(request, comp_id):
     comp = Competition.objects.get(id=comp_id)
@@ -299,3 +318,68 @@ def register_competitor(request, comp_id):
         form = CompetitionRegForm(initial={'comp': comp})
     
     return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp})
+
+@login_required
+def submit_prelims(request, comp_id):
+
+    comp = Competition.objects.get(id=comp_id)
+    judge = Judge.objects.get(comp=comp,profile=request.user)
+    if not judge:
+        error_message = _("Current user is not a judge for this competition.")
+        return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})
+
+    registrations = PrelimsRegistration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
+    if request.method == 'POST':
+        form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
+        if form.is_valid():
+            try:
+                for reg in registrations:
+                    comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
+                    res_obj = PrelimsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
+                    res_obj.save()
+                return redirect('prelims_results', comp_id=comp_id)
+            except IntegrityError:
+                # Handle the unique constraint violation
+                error_message = _("This judge already submitted results.")
+                return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+    else:
+        form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})
+
+    return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp})
+
+def prelims_results(request, comp_id):
+    comp = get_object_or_404(Competition, pk=comp_id)
+    judges = [j.profile for j in Judge.objects.filter(comp=comp)]
+
+    if request.user not in judges:
+        if not comp.results_visible:
+            error_message = _("Prelims results are not ready yet.")
+            context = {
+                'error_message': error_message,
+            }
+            return render(request, 'sc/comp_prelims.html', context)
+
+    registrations = PrelimsRegistration.objects.filter(comp=comp).order_by('comp_role', 'comp_num')
+    results_dict = {}
+    for reg in registrations:
+        results_dict[reg] = []
+        for judge in judges:
+            result = PrelimsResult.objects.filter(comp=comp, judge=judge, comp_reg=reg).first()
+            results_dict[reg].append('')
+            if result:
+                results_dict[reg][-1] = result.get_result_display()
+        if '' not in results_dict[reg]:
+            res_num = results_dict[reg].count('Y') + 0.5*results_dict[reg].count('Mb')
+            results_dict[reg].append(res_num)
+    
+    distinct_judges = PrelimsResult.objects.values('judge').distinct()
+    judges = [j.first_name for j in judges]
+    if len(judges) == len (distinct_judges):
+        judges.append('')
+
+    context = {
+        'judges': judges,
+        'results_dict': results_dict,
+    }
+
+    return render(request, 'sc/comp_prelims.html', context)

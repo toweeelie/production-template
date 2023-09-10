@@ -3,9 +3,13 @@
 
 {% block content %}
 <ul>
-    {% for comp in competitions %}
+    {% for comp, is_judge in is_judge_dict.items %}
         <li>
-            <a href="{% url 'register_competitor' comp.id %}">{{ comp.title }}</a>
+            {% if is_judge %}
+                <a href="{% url 'submit_prelims' comp.id %}">{{ comp.title }}</a>
+            {% else %}
+                <a href="{% url 'register_competitor' comp.id %}">{{ comp.title }}</a>
+            {% endif %}
         </li>
     {% empty %}
         <li>{% trans 'No competitions available' %}</li>

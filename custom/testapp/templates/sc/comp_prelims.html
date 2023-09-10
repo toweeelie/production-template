@@ -1,0 +1,25 @@
+{% extends "cms/home.html" %}
+{% load cms_tags sekizai_tags i18n %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {% for judge in judges %}
+                <th>{{ judge }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for reg,results_row in results_dict.items %}
+            <tr>
+                <td>{{ reg.comp_num }} {{ reg.competitor.fullName }}</td>
+                {% for res in results_row %}
+                    <td>{{ res }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

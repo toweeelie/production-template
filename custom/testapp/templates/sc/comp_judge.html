@@ -2,13 +2,12 @@
 {% load cms_tags sekizai_tags i18n %}
 
 {% block content %}
-<ul>
-    {% for comp in competitions %}
-        <li>
-            <a href="{% url 'register_competitor' comp.id %}">{{ comp.title }}</a>
-        </li>
-    {% empty %}
-        <li>{% trans 'No competitions available' %}</li>
-    {% endfor %}
-</ul>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if error_message %}
+    <p class="error">{{ error_message }}</p>
+    {% endif %}
+    <button type="submit">{% trans 'Submit results' %}</button>
+</form>
 {% endblock %}
