@@ -14,7 +14,11 @@
         {% for reg,results_row in role_dict.results.items %}
             <tr>
                 <td>{{ reg.comp_num }} </td>
+                {% if reg.finalist %}
+                <th>{{ reg.competitor.fullName }}</th>
+                {% else %}
                 <td>{{ reg.competitor.fullName }}</td>
+                {% endif %}
                 {% for res in results_row %}
                     <td>{{ res }}</td>
                 {% endfor %}

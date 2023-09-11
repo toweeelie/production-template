@@ -380,6 +380,12 @@ def prelims_results(request, comp_id):
 
         if all_results_available:
             results_dict = dict(sorted(results_dict.items(), key=lambda item: (item[1][-1],item[1].count('Y')), reverse=True))
+            for i,reg in enumerate(results_dict.keys()):
+                if i < comp.finalists_number:
+                    reg.finalist=True
+                else:
+                    reg.finalist=False
+                reg.save()
 
         role_results_dict[comp_role.pluralName] = {'judges':[j.first_name for j in role_judges],'results':results_dict}
     

@@ -68,6 +68,9 @@ class PrelimsRegistration(models.Model):
     comp_checked_in = models.BooleanField(
         _('Checked In'), default=False, blank=False
     )
+    finalist = models.BooleanField(
+        _('Finalist'), default=False, blank=False
+    )
 
     class Meta:
         unique_together = ('comp', 'competitor')
@@ -89,3 +92,21 @@ class PrelimsResult(models.Model):
 
     class Meta:
         unique_together = ('comp', 'judge', 'comp_reg')
+
+'''
+class FinalPairRegistration(models.Model):
+    
+    Model for pairing finalists into pairs
+    
+    comp = models.ForeignKey(
+        Competition, on_delete=models.CASCADE
+    )
+    comp_reg_l = models.ForeignKey(
+        PrelimsRegistration,verbose_name=_('Leader finalist'), on_delete=models.CASCADE,
+    )
+    comp_reg_f = models.ForeignKey(
+        PrelimsRegistration,verbose_name=_('Follower finalist'), on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = ('comp', 'comp_num_l')'''
