@@ -323,7 +323,7 @@ def register_competitor(request, comp_id):
 def submit_prelims(request, comp_id):
 
     comp = Competition.objects.get(id=comp_id)
-    judge = Judge.objects.get(comp=comp,profile=request.user)
+    judge = Judge.objects.filter(comp=comp,profile=request.user).first()
     if not judge:
         error_message = _("Current user is not a judge for this competition.")
         return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})

@@ -7,7 +7,8 @@
     {{ form.as_p }}
     {% if error_message %}
     <p class="error">{{ error_message }}</p>
-    {% endif %}
+    {% else %}
     <button type="submit">{% trans 'Submit results' %}</button>
+    {% endif %}
 </form>
 {% endblock %}
