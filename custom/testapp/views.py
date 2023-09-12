@@ -288,7 +288,7 @@ def register_competitor(request, comp_id):
     comp = Competition.objects.get(id=comp_id)
     
     if request.method == 'POST':
-        form = CompetitionRegForm(request.POST,initial={'comp': comp})
+        form = CompetitionRegForm(request.POST,initial={'comp': comp,'user': request.user})
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
@@ -315,7 +315,7 @@ def register_competitor(request, comp_id):
                 error_message = _("This competitor is already registered to competition.")
                 return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp,'error_message':error_message})
     else:
-        form = CompetitionRegForm(initial={'comp': comp})
+        form = CompetitionRegForm(initial={'comp': comp,'user': request.user})
     
     return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp})
 

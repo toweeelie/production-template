@@ -204,7 +204,14 @@ class CompetitionRegForm(forms.Form):
         comp = self.initial.get('comp')
         if comp:
             comp_roles = comp.comp_roles.all()
-            self.fields['comp_role'].choices = [(role.id, role.name) for role in comp_roles]
+            self.fields['comp_role'].choices = [('',''),]
+            self.fields['comp_role'].choices += [(role.id, role.name) for role in comp_roles]
+
+        user = self.initial.get('user')
+        if user.is_authenticated:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['email'].initial = user.email
 
 class PrelimsResultsForm(forms.Form):
     '''
