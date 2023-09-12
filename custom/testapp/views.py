@@ -286,6 +286,10 @@ class CompetitionViev(ListView):
 
 def register_competitor(request, comp_id):
     comp = Competition.objects.get(id=comp_id)
+
+    if comp.stage != 'r':
+        #error_message = _("Registration is closed.")
+        return redirect('prelims_results', comp_id=comp_id)
     
     if request.method == 'POST':
         form = CompetitionRegForm(request.POST,initial={'comp': comp,'user': request.user})
@@ -380,17 +384,19 @@ def prelims_results(request, comp_id):
 
         if all_results_available:
             results_dict = dict(sorted(results_dict.items(), key=lambda item: (item[1][-1],item[1].count('Y')), reverse=True))
-            for i,reg in enumerate(results_dict.keys()):
-                if i < comp.finalists_number:
-                    reg.finalist=True
-                else:
-                    reg.finalist=False
-                reg.save()
+            if comp.stage == 'p':
+                for i,reg in enumerate(results_dict.keys()):
+                    if i < comp.finalists_number:
+                        reg.finalist=True
+                    else:
+                        reg.finalist=False
+                    reg.save()
 
         role_results_dict[comp_role.pluralName] = {'judges':[j.first_name for j in role_judges],'results':results_dict}
     
-        #if all_results_available:
-        #    role_results_dict[comp_role.pluralName]['judges'].append('')
+    if all_results_available and comp.stage == 'p':
+        comp.stage = 'd'
+        comp.save()
 
     context = {
         'results_dict': role_results_dict,

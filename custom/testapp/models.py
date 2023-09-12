@@ -12,10 +12,17 @@ class Competition(models.Model):
     Competition model
     '''
 
+    STAGE_CHOICES = (
+        ('r', 'Registration'),
+        ('p', 'Prelims'),
+        ('d', 'Draw'),
+        ('f', 'Finals'),
+    )
     title = models.CharField(
         _('Competition name'),
         max_length=200,
     )
+    stage = models.CharField(max_length=12, choices=STAGE_CHOICES, default='r')
     comp_roles = models.ManyToManyField(
         DanceRole, verbose_name=_('Dance roles'),
     )
@@ -28,6 +35,7 @@ class Competition(models.Model):
     results_visible = models.BooleanField(
         _('Publish results'), default=False, blank=False
     )
+
 
 class Judge(models.Model):
     '''
