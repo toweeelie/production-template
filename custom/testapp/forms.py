@@ -248,3 +248,33 @@ class PrelimsResultsForm(forms.Form):
                 raise ValidationError(_(f"There should be {Y_num} 'Y' and 2 'Mb' marks"))
             
         return cleaned_data
+    
+
+class FinalsResultsForm(forms.Form):
+    '''
+    Form for prelims results
+    '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+       
+        registrations = self.initial.get('registrations')
+        comp = self.initial.get('comp')
+        for registration in registrations:
+            self.fields[f'competitor_{registration.comp_num}'] = forms.IntegerField(
+                label=f'{registration.comp_num}/{registration.final_partner.comp_num} {registration.competitor.fullName} - {registration.final_partner.competitor.fullName}',
+                min_value=1,
+                max_value=comp.finalists_number,
+                required=True,
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        results = list(cleaned_data.values())
+        comp = self.initial.get('comp')
+
+        # check if results are unique
+        if results and comp:
+            if len(results) != len(set(results)):
+                raise ValidationError(_(f"Places duplication"))
+            
+        return cleaned_data

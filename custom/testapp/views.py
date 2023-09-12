@@ -255,7 +255,7 @@ class SkatingCalculatorView(FormView):
             return response
 
 from .models import Competition,PrelimsRegistration,PrelimsResult,Judge
-from .forms import CompetitionRegForm,PrelimsResultsForm
+from .forms import CompetitionRegForm,PrelimsResultsForm,FinalsResultsForm
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
 from django.urls import reverse
@@ -324,32 +324,58 @@ def register_competitor(request, comp_id):
     return render(request, 'sc/comp_reg.html', {'form': form, 'comp': comp})
 
 @login_required
-def submit_prelims(request, comp_id):
+def submit_results(request, comp_id):
 
     comp = Competition.objects.get(id=comp_id)
     judge = Judge.objects.filter(comp=comp,profile=request.user).first()
-    if not judge:
-        error_message = _("Current user is not a judge for this competition.")
+
+    if not judge or (comp.stage in ['r','p'] and not judge.prelims) or (comp.stage in ['d','f'] and not judge.finals):
+        error_message = _("Current user is not a judge for this competition stage.")
         return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})
 
-    registrations = PrelimsRegistration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
-    if request.method == 'POST':
-        form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
-        if form.is_valid():
-            try:
-                for reg in registrations:
-                    comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                    res_obj = PrelimsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
-                    res_obj.save()
-                return redirect('prelims_results', comp_id=comp_id)
-            except IntegrityError:
-                # Handle the unique constraint violation
-                error_message = _("This judge already submitted results.")
-                return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+    if comp.stage in ['r','d']:
+        error_message = _("Please wait while registration/draw stage will be finished.")
+        return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})
+    
+    if comp.stage == 'p':
+        # prelims 
+        registrations = PrelimsRegistration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
+        if request.method == 'POST':
+            form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
+            if form.is_valid():
+                try:
+                    for reg in registrations:
+                        comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
+                        res_obj = PrelimsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
+                        res_obj.save()
+                    return redirect('prelims_results', comp_id=comp_id)
+                except IntegrityError:
+                    # Handle the unique constraint violation
+                    error_message = _("This judge already submitted results.")
+                    return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+        else:
+            form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})   
     else:
-        form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})
+        # finals
+        registrations = PrelimsRegistration.objects.exclude(final_partner__isnull=True)
+        if request.method == 'POST':
+            form = FinalsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
+            if form.is_valid():
+                try:
+                    for reg in registrations:
+                        comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
+                        #res_obj = PrelimsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
+                        #res_obj.save()
+                    return redirect('finals_results', comp_id=comp_id)
+                except IntegrityError:
+                    # Handle the unique constraint violation
+                    error_message = _("This judge already submitted results.")
+                    return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+        else:
+            form = FinalsResultsForm(initial={'comp': comp,'registrations':registrations})
 
     return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp})
+
 
 def prelims_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
@@ -403,3 +429,6 @@ def prelims_results(request, comp_id):
     }
 
     return render(request, 'sc/comp_prelims.html', context)
+
+def finals_results(request, comp_id):
+    pass
