@@ -230,8 +230,13 @@ class PrelimsResultsForm(forms.Form):
                         ('maybe', 'Mb'),
                         ('yes', 'Y'),
                     ],
-                    #widget=TriStateCheckboxInput(),
                     required=True,
+                )
+                self.fields[f'comment_{registration.comp_num}'] = forms.CharField(
+                    label='',
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'placeholder':'Comments','style': 'width: 100%'}),
+                    required=False,
                 )
 
     def clean(self):
@@ -269,6 +274,12 @@ class FinalsResultsForm(forms.Form):
                 min_value=1,
                 max_value=comp.finalists_number,
                 required=True,
+            )
+            self.fields[f'comment_{registration.comp_num}'] = forms.CharField(
+                label='',
+                max_length=100,
+                widget=forms.TextInput(attrs={'placeholder':'Comments','style': 'width: 100%'}),
+                required=False,
             )
 
     def clean(self):

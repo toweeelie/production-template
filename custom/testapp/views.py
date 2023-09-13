@@ -332,14 +332,16 @@ def submit_results(request, comp_id):
     
     if comp.stage == 'p':
         # prelims 
-        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
+        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role).order_by('comp_num')    
         if request.method == 'POST':
             form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
             if form.is_valid():
                 try:
                     for reg in registrations:
                         comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, comp_reg=reg, result = comp_res)
+                        comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
+                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, 
+                                                               comp_reg=reg, result = comp_res, comment = comp_comment)
                         res_obj.save()
                     return redirect('prelims_results', comp_id=comp_id)
                 except IntegrityError:
@@ -357,7 +359,9 @@ def submit_results(request, comp_id):
                 try:
                     for reg in registrations:
                         comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        res_obj = FinalsResult.objects.create(comp = comp, judge_profile = judge.profile, comp_reg=reg, result = comp_res)
+                        comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
+                        res_obj = FinalsResult.objects.create(comp = comp, judge_profile = judge.profile, 
+                                                              comp_reg=reg, result = comp_res, comment = comp_comment)
                         res_obj.save()
                     return redirect('finals_results', comp_id=comp_id)
                 except IntegrityError:

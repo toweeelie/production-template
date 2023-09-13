@@ -113,7 +113,7 @@ class PrelimsResult(models.Model):
     judge_profile = models.ForeignKey(User, on_delete=models.CASCADE)
     comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
     result = models.CharField(max_length=10, choices=JUDGE_CHOICES, default='no')
-
+    comment = models.CharField(max_length=100,blank=True)
     class Meta:
         unique_together = ('comp', 'judge_profile', 'comp_reg')
 
@@ -129,6 +129,6 @@ class FinalsResult(models.Model):
     result = models.IntegerField(
         verbose_name=_('Place'),
     )
-
+    comment = models.CharField(max_length=100,blank=True)
     class Meta:
         unique_together = ('comp', 'judge_profile', 'comp_reg')
