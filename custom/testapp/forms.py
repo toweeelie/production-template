@@ -261,7 +261,11 @@ class FinalsResultsForm(forms.Form):
         comp = self.initial.get('comp')
         for registration in registrations:
             self.fields[f'competitor_{registration.comp_num}'] = forms.IntegerField(
-                label=f'{registration.comp_num}/{registration.final_partner.comp_num} {registration.competitor.fullName} - {registration.final_partner.competitor.fullName}',
+                label=f'{registration.comp_num}/{registration.final_partner.comp_num} '+
+                    f'{registration.competitor.first_name} - '+
+                    f'{registration.final_partner.competitor.first_name}',
+                    #f'{registration.competitor.first_name}{registration.competitor.last_name[0]} - '+
+                    #f'{registration.final_partner.competitor.first_name}{registration.final_partner.competitor.last_name[0]}',
                 min_value=1,
                 max_value=comp.finalists_number,
                 required=True,

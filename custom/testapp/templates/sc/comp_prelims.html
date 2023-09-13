@@ -2,6 +2,9 @@
 {% load cms_tags sekizai_tags i18n %}
 
 {% block content %}
+{% if error_message %}
+<p class="error">{{ error_message }}</p>
+{% else %}
 <table>
     {% for comp_role,role_dict in results_dict.items %}
         <tr>
@@ -14,7 +17,7 @@
         {% for reg,results_row in role_dict.results.items %}
             <tr>
                 <td>{{ reg.comp_num }} </td>
-                {% if reg.finalist %}
+                {% if reg.finalist and results_row %}
                 <th>{{ reg.competitor.fullName }}</th>
                 {% else %}
                 <td>{{ reg.competitor.fullName }}</td>
@@ -27,7 +30,5 @@
     {% endfor %}
 
 </table>
-{% if error_message %}
-<p class="error">{{ error_message }}</p>
 {% endif %}
 {% endblock %}

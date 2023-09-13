@@ -110,3 +110,18 @@ class PrelimsResult(models.Model):
 
     class Meta:
         unique_together = ('comp', 'judge', 'comp_reg')
+
+class FinalsResult(models.Model):
+    '''
+    Finals results
+    '''
+
+    comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
+    judge = models.ForeignKey(User, on_delete=models.CASCADE)
+    comp_reg = models.ForeignKey(PrelimsRegistration, on_delete=models.CASCADE)
+    result = models.IntegerField(
+        verbose_name=_('Place'),
+    )
+
+    class Meta:
+        unique_together = ('comp', 'judge', 'comp_reg')
