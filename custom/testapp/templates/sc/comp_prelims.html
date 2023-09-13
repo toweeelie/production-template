@@ -30,5 +30,9 @@
     {% endfor %}
 
 </table>
+{% if comp_id %}
+<a href="{% url 'redirect_user' comp_id %}">{% trans 'Judge Finals' %}</a>
+{% endif %}
+
 {% endif %}
 {% endblock %}

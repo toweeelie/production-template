@@ -352,7 +352,7 @@ def submit_results(request, comp_id):
             form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})   
     else:
         # finals
-        registrations = Registration.objects.exclude(final_partner__isnull=True)
+        registrations = Registration.objects.exclude(final_partner__isnull=True).order_by('final_heat_order')
         if request.method == 'POST':
             form = FinalsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
             if form.is_valid():
@@ -450,6 +450,9 @@ def prelims_results(request, comp_id):
         if comp.stage == 'p' and user_is_judge:
             comp.stage = 'd'
             comp.save()
+
+        if comp.stage == 'f' and user_is_judge:
+            context['comp_id'] = comp_id
 
         context['results_dict'] = role_results_dict
 

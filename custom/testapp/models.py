@@ -91,6 +91,7 @@ class Registration(models.Model):
     final_partner = models.ForeignKey(
         'self',verbose_name=_('Partner in final'), null=True, blank=True, on_delete=models.CASCADE,
     )
+    final_heat_order = models.IntegerField(default=0)
 
     def __str__(self):
         return f'{self.comp_num} {self.competitor.fullName}'

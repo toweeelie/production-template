@@ -18,7 +18,7 @@ mergeCustomers.short_description = _('Merge selected customers')
 CustomerAdmin.actions.append(mergeCustomers)
 
 
-class PrelimsRegistrationInline(admin.TabularInline):
+class RegistrationInline(admin.TabularInline):
     model = Registration
     extra = 0
 
@@ -87,7 +87,7 @@ class JudgeInline(admin.TabularInline):
 @admin.register(Competition)
 class CompetitionAdmin(admin.ModelAdmin):
     list_display = ('title','results_visible')
-    inlines = [JudgeInline,PrelimsRegistrationInline]
+    inlines = [JudgeInline,RegistrationInline]
 
 
 @admin.register(PrelimsResult)
