@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from danceschool.core.admin import CustomerAdmin
 
-from .models import Competition,Judge,PrelimsRegistration,PrelimsResult,FinalsResult
+from .models import Competition,Judge,Registration,PrelimsResult,FinalsResult
 
 def mergeCustomers(self, request, queryset):
     # Allows use of the email view to contact specific customers.
@@ -19,7 +19,7 @@ CustomerAdmin.actions.append(mergeCustomers)
 
 
 class PrelimsRegistrationInline(admin.TabularInline):
-    model = PrelimsRegistration
+    model = Registration
     extra = 0
 
     def get_queryset(self, request):
@@ -42,7 +42,7 @@ class PrelimsRegistrationInline(admin.TabularInline):
             competition = Competition.objects.get(pk=competition_id)
 
             # Customize the queryset for the final_partner field
-            kwargs['queryset'] = PrelimsRegistration.objects.filter(
+            kwargs['queryset'] = Registration.objects.filter(
                 comp_role=competition.comp_roles.last(),
                 finalist=True
             ).exclude(pk=competition.pk)  # Exclude the current registration
@@ -92,11 +92,11 @@ class CompetitionAdmin(admin.ModelAdmin):
 
 @admin.register(PrelimsResult)
 class PrelimsResultAdmin(admin.ModelAdmin):
-    list_display = ('comp', 'judge', 'comp_reg','result') 
-    list_filter = ('comp','judge',)
+    list_display = ('comp', 'judge_profile', 'comp_reg','result') 
+    list_filter = ('comp','judge_profile',)
 
 
 @admin.register(FinalsResult)
 class FinalsResultAdmin(admin.ModelAdmin):
-    list_display = ('comp', 'judge', 'comp_reg','result') 
-    list_filter = ('comp','judge',)
+    list_display = ('comp', 'judge_profile', 'comp_reg','result') 
+    list_filter = ('comp','judge_profile',)

@@ -254,35 +254,28 @@ class SkatingCalculatorView(FormView):
 
             return response
 
-from .models import Competition,Judge,PrelimsRegistration,PrelimsResult,FinalsResult
+from .models import Competition,Judge,Registration,PrelimsResult,FinalsResult
 from .forms import CompetitionRegForm,PrelimsResultsForm,FinalsResultsForm
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-class CompetitionViev(ListView):
+class CompetitionListViev(ListView):
     model = Competition
     template_name = 'sc/comp_list.html'
     context_object_name = 'competitions'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user  # Get the current user
 
-        # Create a dict to store whether the user is a judge for each competition
-        is_judge_dict = {}
+def redirect_user(request, comp_id):
+    comp = Competition.objects.get(id=comp_id)
+    judge = Judge.objects.filter(comp=comp,profile=request.user).first()
 
-        # Check if the user is a judge for each competition in the queryset
-        for comp in context['competitions']:
-            judges = Judge.objects.filter(comp=comp)
-            is_judge = user.is_authenticated and user in [j.profile for j in judges]
-            is_judge_dict[comp] = is_judge
+    if judge:
+        return redirect('submit_results', comp_id=comp_id)
+    else:
+        return redirect('register_competitor', comp_id=comp_id)
 
-        # Add the dict of judge status to the context
-        context['is_judge_dict'] = is_judge_dict
-
-        return context
 
 def register_competitor(request, comp_id):
     comp = Competition.objects.get(id=comp_id)
@@ -304,10 +297,10 @@ def register_competitor(request, comp_id):
 
             competitor, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
 
-            comp_num = PrelimsRegistration.objects.filter(comp=comp,comp_role=comp_role).count() + 1
+            comp_num = Registration.objects.filter(comp=comp,comp_role=comp_role).count() + 1
             comp_num = len(comp_roles)*comp_num-comp_roles.index(comp_role)
             try:
-                prelims_reg_obj = PrelimsRegistration.objects.create(
+                prelims_reg_obj = Registration.objects.create(
                     competitor=competitor, comp_num=comp_num, comp=comp, comp_role=comp_role)
 
                 competitor.save()
@@ -339,14 +332,14 @@ def submit_results(request, comp_id):
     
     if comp.stage == 'p':
         # prelims 
-        registrations = PrelimsRegistration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
+        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role)    
         if request.method == 'POST':
             form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
             if form.is_valid():
                 try:
                     for reg in registrations:
                         comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        res_obj = PrelimsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
+                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, comp_reg=reg, result = comp_res)
                         res_obj.save()
                     return redirect('prelims_results', comp_id=comp_id)
                 except IntegrityError:
@@ -357,14 +350,14 @@ def submit_results(request, comp_id):
             form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})   
     else:
         # finals
-        registrations = PrelimsRegistration.objects.exclude(final_partner__isnull=True)
+        registrations = Registration.objects.exclude(final_partner__isnull=True)
         if request.method == 'POST':
             form = FinalsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
             if form.is_valid():
                 try:
                     for reg in registrations:
                         comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        res_obj = FinalsResult.objects.create(comp = comp, judge = judge.profile, comp_reg=reg, result = comp_res)
+                        res_obj = FinalsResult.objects.create(comp = comp, judge_profile = judge.profile, comp_reg=reg, result = comp_res)
                         res_obj.save()
                     return redirect('finals_results', comp_id=comp_id)
                 except IntegrityError:
@@ -379,18 +372,23 @@ def submit_results(request, comp_id):
 
 def prelims_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
-    results = PrelimsResult.objects.filter(comp=comp).order_by('comp_reg','judge').all()
+    results = PrelimsResult.objects.filter(comp=comp).order_by('comp_reg','judge_profile').all()
     judges = {}
+    main_judge_idx = {}
     all_results_ready = True
     for comp_role in comp.comp_roles.all():
-        role_judges = [j.profile for j in Judge.objects.filter(comp=comp,prelims=True,prelims_role=comp_role).all()]
+        judge_objs = Judge.objects.filter(comp=comp,prelims=True,prelims_role=comp_role).order_by('profile').all()
+        role_judges = [j.profile for j in judge_objs]
         judges[comp_role] = role_judges
+        main_judge_idx[comp_role] = [i for i,j in enumerate(judge_objs) if j.prelims_main_judge][0]
         role_results = [r for r in results if r.comp_reg.comp_role == comp_role]
-        all_results_ready &= set(role_judges).issubset({result.judge for result in role_results})
+        all_results_ready &= set(role_judges).issubset({result.judge_profile for result in role_results})
 
     context = {}
 
-    if request.user in judges:
+    user_is_judge = any(request.user in judges[comp_role] for comp_role in comp.comp_roles.all())
+
+    if user_is_judge:
         if not all_results_ready:
             error_message = _("Waiting other judges to finish.")
             context['error_message'] = error_message
@@ -398,7 +396,7 @@ def prelims_results(request, comp_id):
         if comp.stage in ['d','f']:
             role_results_dict = {}
             for comp_role in comp.comp_roles.all():
-                role_finalists = PrelimsRegistration.objects.filter(finalist=True,comp_role=comp_role).order_by('comp_num').all()
+                role_finalists = Registration.objects.filter(finalist=True,comp_role=comp_role).order_by('comp_num').all()
                 role_results_dict[comp_role.pluralName] = {'judges':[],'results':{reg:[] for reg in role_finalists}}
             context['results_dict'] = role_results_dict
         else:
@@ -414,16 +412,30 @@ def prelims_results(request, comp_id):
 
         role_results_dict = {}
         for comp_role in comp.comp_roles.all():
+
+            def prelims_priority_rules(item):
+                points = item[1][-1]
+
+                num_Y = item[1].count('Y')
+
+                main_judge_points = 0
+                if item[1][main_judge_idx[comp_role]] == 'Y':
+                    main_judge_points = 1
+                elif item[1][main_judge_idx[comp_role]] == 'Mb':
+                    main_judge_points = 0.5
+                    
+                return(points,num_Y,main_judge_points)
+
             tmp_dict = {reg:res_list+[res_list.count('Y') + 0.5*res_list.count('Mb'),] 
                            for reg,res_list in results_dict.items() if reg.comp_role == comp_role}
-            tmp_dict = dict(sorted(tmp_dict.items(), key=lambda item: (item[1][-1],item[1].count('Y')), reverse=True))
+            tmp_dict = dict(sorted(tmp_dict.items(), key=prelims_priority_rules, reverse=True))
 
             role_results_dict[comp_role.pluralName] = {
                 'judges':[j.first_name for j in judges[comp_role]],
                 'results':tmp_dict,
             }            
 
-            if comp.stage == 'p' and request.user in judges:
+            if comp.stage == 'p' and user_is_judge:
                 for i,reg in enumerate(tmp_dict.keys()):
                     if i < comp.finalists_number:
                         reg.finalist=True
@@ -431,7 +443,7 @@ def prelims_results(request, comp_id):
                         reg.finalist=False
                     reg.save()
 
-        if comp.stage == 'p' and request.user in judges:
+        if comp.stage == 'p' and user_is_judge:
             comp.stage = 'd'
             comp.save()
 
@@ -443,7 +455,7 @@ def finals_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
     judges = [j.profile for j in Judge.objects.filter(comp=comp,finals=True).all()]
     results = FinalsResult.objects.filter(comp=comp).all()
-    results_ready = set(judges).issubset({result.judge for result in results})
+    results_ready = set(judges).issubset({result.judge_profile for result in results})
     context = {}
     if request.user in judges:
         if not results_ready:

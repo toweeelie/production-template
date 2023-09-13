@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from .models import Competition, Judge, PrelimsRegistration
+from .models import Competition, Judge, Registration
+
 
 class CompetitionRegistrationTest(TestCase):
     def setUp(self):

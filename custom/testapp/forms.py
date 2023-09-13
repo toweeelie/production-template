@@ -182,7 +182,7 @@ class ProfileChooseDateForm(forms.Form):
 
 
 from danceschool.core.models import Customer,DanceRole
-from .models import Competition,PrelimsRegistration
+from .models import Competition,Registration
 from django.utils.html import format_html
 
 class CompetitionRegForm(forms.Form):

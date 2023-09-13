@@ -4,8 +4,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from danceschool.core.models import Customer,DanceRole
 
-    
-
 
 class Competition(models.Model):
     '''
@@ -69,7 +67,8 @@ class Judge(models.Model):
     class Meta:
         unique_together = ('profile', 'comp')
 
-class PrelimsRegistration(models.Model):
+
+class Registration(models.Model):
     '''
     Prelims registration record
     '''
@@ -99,6 +98,7 @@ class PrelimsRegistration(models.Model):
     class Meta:
         unique_together = ('comp', 'competitor')
 
+
 class PrelimsResult(models.Model):
     '''
     Prelims results
@@ -110,12 +110,13 @@ class PrelimsResult(models.Model):
     )
 
     comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
-    judge = models.ForeignKey(User, on_delete=models.CASCADE)
-    comp_reg = models.ForeignKey(PrelimsRegistration, on_delete=models.CASCADE)
+    judge_profile = models.ForeignKey(User, on_delete=models.CASCADE)
+    comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
     result = models.CharField(max_length=10, choices=JUDGE_CHOICES, default='no')
 
     class Meta:
-        unique_together = ('comp', 'judge', 'comp_reg')
+        unique_together = ('comp', 'judge_profile', 'comp_reg')
+
 
 class FinalsResult(models.Model):
     '''
@@ -123,11 +124,11 @@ class FinalsResult(models.Model):
     '''
 
     comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
-    judge = models.ForeignKey(User, on_delete=models.CASCADE)
-    comp_reg = models.ForeignKey(PrelimsRegistration, on_delete=models.CASCADE)
+    judge_profile = models.ForeignKey(User, on_delete=models.CASCADE)
+    comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
     result = models.IntegerField(
         verbose_name=_('Place'),
     )
 
     class Meta:
-        unique_together = ('comp', 'judge', 'comp_reg')
+        unique_together = ('comp', 'judge_profile', 'comp_reg')
