@@ -50,11 +50,17 @@ class Judge(models.Model):
     prelims = models.BooleanField(
         _('Judging Prelims'), default=False
     )
+    prelims_role = models.ForeignKey(
+        DanceRole, on_delete=models.CASCADE
+    )
+    prelims_main_judge = models.BooleanField(
+        _('Prelims Main Judge'), default=False
+    )
     finals = models.BooleanField(
         _('Judging Finals'), default=False
     )
-    prelims_role = models.ForeignKey(
-        DanceRole, on_delete=models.CASCADE
+    finals_main_judge = models.BooleanField(
+        _('Finals Main Judge'), default=False
     )
 
     def __str__(self):
