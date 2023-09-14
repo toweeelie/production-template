@@ -70,7 +70,7 @@ class Judge(models.Model):
 
 class Registration(models.Model):
     '''
-    Prelims registration record
+    Competitor registration record
     '''
     comp = models.ForeignKey(
         Competition, on_delete=models.CASCADE
@@ -100,7 +100,19 @@ class Registration(models.Model):
         unique_together = ('comp', 'competitor')
 
 
-class PrelimsResult(models.Model):
+class Result(models.Model):
+    '''
+    Parent result class
+    '''
+    judge = models.ForeignKey(Judge, on_delete=models.CASCADE)
+    comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=100,blank=True)
+
+    class Meta:
+        unique_together = ('judge', 'comp_reg')
+
+
+class PrelimsResult(Result):
     '''
     Prelims results
     '''
@@ -110,26 +122,11 @@ class PrelimsResult(models.Model):
         ('no', ''),
     )
 
-    comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
-    judge_profile = models.ForeignKey(User, on_delete=models.CASCADE)
-    comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
     result = models.CharField(max_length=10, choices=JUDGE_CHOICES, default='no')
-    comment = models.CharField(max_length=100,blank=True)
-    class Meta:
-        unique_together = ('comp', 'judge_profile', 'comp_reg')
 
 
-class FinalsResult(models.Model):
+class FinalsResult(Result):
     '''
     Finals results
     '''
-
-    comp = models.ForeignKey(Competition, on_delete=models.CASCADE)
-    judge_profile = models.ForeignKey(User, on_delete=models.CASCADE)
-    comp_reg = models.ForeignKey(Registration, on_delete=models.CASCADE)
-    result = models.IntegerField(
-        verbose_name=_('Place'),
-    )
-    comment = models.CharField(max_length=100,blank=True)
-    class Meta:
-        unique_together = ('comp', 'judge_profile', 'comp_reg')
+    result = models.IntegerField(verbose_name=_('Place'),)

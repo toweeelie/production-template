@@ -92,11 +92,11 @@ class CompetitionAdmin(admin.ModelAdmin):
 
 @admin.register(PrelimsResult)
 class PrelimsResultAdmin(admin.ModelAdmin):
-    list_display = ('comp', 'judge_profile', 'comp_reg','result') 
-    list_filter = ('comp','judge_profile',)
+    list_display = ('judge', 'comp_reg','result') 
+    list_filter = ('judge',)
 
 
 @admin.register(FinalsResult)
 class FinalsResultAdmin(admin.ModelAdmin):
-    list_display = ('comp', 'judge_profile', 'comp_reg','result') 
-    list_filter = ('comp','judge_profile',)
+    list_display = ('judge', 'comp_reg','result') 
+    list_filter = ('judge',)

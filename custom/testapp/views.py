@@ -348,12 +348,12 @@ def submit_results(request, comp_id):
                     comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
                     if comp.stage == 'p':
                         redirect_view = 'prelims_results'
-                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, 
-                                                            comp_reg=reg, result = comp_res, comment = comp_comment)
+                        res_obj = PrelimsResult.objects.create(judge = judge, comp_reg=reg, 
+                                                               result = comp_res, comment = comp_comment)
                     else:
                         redirect_view = 'finals_results'
-                        res_obj = FinalsResult.objects.create(comp = comp, judge_profile = judge.profile, 
-                                                            comp_reg=reg, result = comp_res, comment = comp_comment)
+                        res_obj = FinalsResult.objects.create(judge = judge, comp_reg=reg, 
+                                                              result = comp_res, comment = comp_comment)
                     res_obj.save()
                 return redirect(redirect_view, comp_id=comp_id)
             except IntegrityError:
@@ -371,7 +371,7 @@ def submit_results(request, comp_id):
 
 def prelims_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
-    results = PrelimsResult.objects.filter(comp=comp).order_by('comp_reg','judge_profile').all()
+    results = PrelimsResult.objects.filter(judge__comp=comp).order_by('comp_reg','judge').all()
     judges = {}
     main_judge_idx = {}
     all_results_ready = True
@@ -381,7 +381,7 @@ def prelims_results(request, comp_id):
         judges[comp_role] = role_judges
         main_judge_idx[comp_role] = [i for i,j in enumerate(judge_objs) if j.prelims_main_judge][0]
         role_results = [r for r in results if r.comp_reg.comp_role == comp_role]
-        all_results_ready &= set(role_judges).issubset({result.judge_profile for result in role_results})
+        all_results_ready &= set(role_judges).issubset({result.judge.profile for result in role_results})
 
     context = {}
 
@@ -455,11 +455,11 @@ def prelims_results(request, comp_id):
 
 def finals_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
-    judges = [j.profile for j in Judge.objects.filter(comp=comp,finals=True).all()]
-    results = FinalsResult.objects.filter(comp=comp).all()
-    results_ready = set(judges).issubset({result.judge_profile for result in results})
+    judges = Judge.objects.filter(comp=comp,finals=True).all()
+    results = FinalsResult.objects.filter(judge__comp=comp).all()
+    results_ready = set(judges).issubset({result.judge for result in results})
     context = {}
-    if request.user in judges:
+    if request.user in [j.profile for j in judges]:
         if not results_ready:
             error_message = _("Waiting other judges to finish.")
             context['error_message'] = error_message
