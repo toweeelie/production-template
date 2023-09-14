@@ -5,6 +5,9 @@
 {% if error_message %}
 <p class="error">{{ error_message }}</p>
 {% else %}
+{% if comp_id %}
+<a href="{% url 'redirect_user' comp_id %}">{% trans 'Finals' %}</a>
+{% endif %}
 <table>
     {% for comp_role,role_dict in results_dict.items %}
         <tr>
@@ -30,9 +33,5 @@
     {% endfor %}
 
 </table>
-{% if comp_id %}
-<a href="{% url 'redirect_user' comp_id %}">{% trans 'Judge Finals' %}</a>
-{% endif %}
-
 {% endif %}
 {% endblock %}

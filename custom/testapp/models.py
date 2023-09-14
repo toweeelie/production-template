@@ -34,6 +34,8 @@ class Competition(models.Model):
         _('Publish results'), default=False, blank=False
     )
 
+    def __str__(self):
+            return self.title
 
 class Judge(models.Model):
     '''
@@ -109,7 +111,7 @@ class Result(models.Model):
     comment = models.CharField(max_length=100,blank=True)
 
     class Meta:
-        unique_together = ('judge', 'comp_reg')
+        abstract = True 
 
 
 class PrelimsResult(Result):
@@ -123,6 +125,9 @@ class PrelimsResult(Result):
     )
 
     result = models.CharField(max_length=10, choices=JUDGE_CHOICES, default='no')
+    
+    class Meta:
+        unique_together = ('judge', 'comp_reg')
 
 
 class FinalsResult(Result):
@@ -130,3 +135,7 @@ class FinalsResult(Result):
     Finals results
     '''
     result = models.IntegerField(verbose_name=_('Place'),)
+
+    class Meta:
+        unique_together = ('judge', 'comp_reg')
+        

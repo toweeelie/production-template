@@ -241,7 +241,7 @@ class PrelimsResultsForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        results = list(cleaned_data.values())
+        results = [res for field,res in cleaned_data.items() if field.startswith('competitor_')]
         comp = self.initial.get('comp')
 
         # check if enough Y and Mb were choosen
@@ -284,7 +284,7 @@ class FinalsResultsForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        results = list(cleaned_data.values())
+        results = [res for field,res in cleaned_data.items() if field.startswith('competitor_')]
         comp = self.initial.get('comp')
 
         # check if results are unique
