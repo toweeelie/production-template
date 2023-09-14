@@ -136,6 +136,82 @@ class MergeCustomersView(PermissionRequiredMixin, FormView):
 
 # EventRegistrationSummaryView.context['form'] = QuickCustomerRegForm
 
+def calculate_skating(judges_list,data_dict):
+    sctable = []
+
+    judges = len(judges_list)
+    competitors = len(data_dict)
+
+    # write header
+    sctable.append(['',]+ judges_list + ['"1-{0}"'.format(p) for p in range(1,competitors+1)] + [_('Place'),])
+
+    for c_name, c_points in data_dict.items():
+        # get points specific for competitor
+        points = c_points
+
+        # count points entries
+        entries = [points.count(1),]
+        for e in range(2,competitors+1):
+            entries.append(points.count(e)+entries[-1])
+
+        # append row specific for competitor 
+        sctable.append([c_name,] + points + entries)
+
+    # define recursive skating procedure
+    def skating_rules(init_col,place,sub_sctable):
+        # go over entries columns
+        for pcol in range(init_col,competitors): 
+            # get list of (entry,sum,idx)
+            column = []
+            for cidx,comp in sub_sctable.items():
+                # place is not set yet
+                if len(comp) != len(sctable[0]):
+                    # entry is >= majority
+                    if comp[judges+1+pcol] >= majority:
+                        column.append((-comp[judges+1+pcol],sum([c for c in comp[1:judges+1] if c <= pcol+1]),cidx))
+                        
+            # go over a list sorted descending by occurences then ascending by sums
+            for cval,csum,cidx in sorted(column): 
+                # if current (entry,sum) is unique
+                if [(c[0],c[1]) for c in column].count((cval,csum)) == 1:
+                    # assign the place
+                    for p in range(pcol+1,competitors):
+                        sctable[cidx+1][judges+1+p] = 0
+                    sctable[cidx+1].append(place)
+                    place += 1
+                    # set sum tiebreaker if found equal entries
+                    if [c[0] for c in column].count(cval) != 1:
+                        sctable[cidx+1][judges+1+pcol] = str(sctable[cidx+1][judges+1+pcol]) + '(%d)' % csum
+                # process only if place is not assigned for current competitor
+                elif len(sctable[cidx+1]) != len(sctable[0]):
+                    # collect indexes of all equal cases
+                    equal_indexes =  [c[2] for c in column if c[0] == cval and c[1] == csum ]
+                    # write sums to show that there was no tiebreaker on this column
+                    for eidx in equal_indexes:
+                        sctable[eidx+1][judges+1+pcol] = str(sctable[eidx+1][judges+1+pcol]) + '(%d)' % csum
+                    # process search across the rest of the table for equal cases
+                    place = skating_rules(pcol+1, place, { i:l for i,l in sub_sctable.items() if i in equal_indexes })
+
+        # reached the end of the table, share several places among all equal cases
+        if init_col == competitors:
+            shared_places = '/'.join(map(str,range(place,place+len(sub_sctable))))
+            for cidx in sub_sctable.keys():
+                sctable[cidx+1].append(shared_places)
+            place += len(sub_sctable)
+        return place
+
+    # calculate places
+    majority = int(judges/2)+1
+    skating_rules(0, 1, { i:l for i,l in enumerate(sctable[1:]) })
+
+    # clean zeroes from the table
+    for ridx, row in enumerate(sctable):
+        for cidx, cell in enumerate(row):
+            if sctable[ridx][cidx] == 0:
+                sctable[ridx][cidx] = ''
+
+    return sctable
+
 class SkatingCalculatorView(FormView):
     form_class = SkatingCalculatorForm
     template_name = 'sc/skating_calculator.html'
@@ -164,74 +240,14 @@ class SkatingCalculatorView(FormView):
         judges = self.request.session.get('judges',0)
         competitors = self.request.session.get('competitors',0)
 
-        sctable = []    
-        # write header
-        sctable.append(['',]+[form.cleaned_data['j{0}'.format(jidx)] for jidx in range(0,judges)] + ['"1-{0}"'.format(p) for p in range(1,competitors+1)] + [_('Place'),])
-
+        data_dict = {}
+        judges_list = [form.cleaned_data['j{0}'.format(jidx)] for jidx in range(0,judges)]
         for cidx in range(competitors):
-            # get points specific for competitor
-            points = [ form.cleaned_data['p{0}_{1}'.format(jidx,cidx)] for jidx in range(0,judges) ]
+            data_dict[form.cleaned_data['c{0}'.format(cidx)]] = [ 
+                form.cleaned_data['p{0}_{1}'.format(jidx,cidx)] for jidx in range(0,judges) 
+            ]
 
-            # count points entries
-            entries = [points.count(1),]
-            for e in range(2,competitors+1):
-                entries.append(points.count(e)+entries[-1])
-
-            # append row specific for competitor 
-            sctable.append([form.cleaned_data['c{0}'.format(cidx)],] + points + entries)
-
-        # define recursive skating procedure
-        def skating_rules(init_col,place,sub_sctable):
-            # go over entries columns
-            for pcol in range(init_col,competitors): 
-                # get list of (entry,sum,idx)
-                column = []
-                for cidx,comp in sub_sctable.items():
-                    # place is not set yet
-                    if len(comp) != len(sctable[0]):
-                        # entry is >= majority
-                        if comp[judges+1+pcol] >= majority:
-                            column.append((-comp[judges+1+pcol],sum([c for c in comp[1:judges+1] if c <= pcol+1]),cidx))
-                            
-                # go over a list sorted descending by occurences then ascending by sums
-                for cval,csum,cidx in sorted(column): 
-                    # if current (entry,sum) is unique
-                    if [(c[0],c[1]) for c in column].count((cval,csum)) == 1:
-                        # assign the place
-                        for p in range(pcol+1,competitors):
-                            sctable[cidx+1][judges+1+p] = 0
-                        sctable[cidx+1].append(place)
-                        place += 1
-                        # set sum tiebreaker if found equal entries
-                        if [c[0] for c in column].count(cval) != 1:
-                            sctable[cidx+1][judges+1+pcol] = str(sctable[cidx+1][judges+1+pcol]) + '(%d)' % csum
-                    # process only if place is not assigned for current competitor
-                    elif len(sctable[cidx+1]) != len(sctable[0]):
-                        # collect indexes of all equal cases
-                        equal_indexes =  [c[2] for c in column if c[0] == cval and c[1] == csum ]
-                        # write sums to show that there was no tiebreaker on this column
-                        for eidx in equal_indexes:
-                            sctable[eidx+1][judges+1+pcol] = str(sctable[eidx+1][judges+1+pcol]) + '(%d)' % csum
-                        # process search across the rest of the table for equal cases
-                        place = skating_rules(pcol+1, place, { i:l for i,l in sub_sctable.items() if i in equal_indexes })
-
-            # reached the end of the table, share several places among all equal cases
-            if init_col == competitors:
-                shared_places = '/'.join(map(str,range(place,place+len(sub_sctable))))
-                for cidx in sub_sctable.keys():
-                    sctable[cidx+1].append(shared_places)
-                place += len(sub_sctable)
-            return place
-
-        # calculate places
-        majority = int(judges/2)+1
-        skating_rules(0, 1, { i:l for i,l in enumerate(sctable[1:]) })
-
-        # clean zeroes from the table
-        for ridx, row in enumerate(sctable):
-            for cidx, cell in enumerate(row):
-                if sctable[ridx][cidx] == 0:
-                    sctable[ridx][cidx] = ''
+        sctable = calculate_skating(judges_list,data_dict) 
 
         if form.cleaned_data['outType'] == '1':
             # display results inplace
@@ -425,8 +441,11 @@ def prelims_results(request, comp_id):
                     
                 return(points,num_Y,main_judge_points)
 
-            tmp_dict = {reg:res_list+[res_list.count('Y') + 0.5*res_list.count('Mb'),] 
-                           for reg,res_list in results_dict.items() if reg.comp_role == comp_role}
+            tmp_dict = {
+                (reg.comp_num,reg.competitor.fullName):
+                    res_list+[res_list.count('Y') + 0.5*res_list.count('Mb'),] 
+                for reg,res_list in results_dict.items() if reg.comp_role == comp_role
+            }
             tmp_dict = dict(sorted(tmp_dict.items(), key=prelims_priority_rules, reverse=True))
 
             role_results_dict[comp_role.pluralName] = {
@@ -455,8 +474,8 @@ def prelims_results(request, comp_id):
 
 def finals_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
-    judges = Judge.objects.filter(comp=comp,finals=True).all()
-    results = FinalsResult.objects.filter(judge__comp=comp).all()
+    judges = Judge.objects.filter(comp=comp,finals=True).order_by('profile').all()
+    results = FinalsResult.objects.filter(judge__comp=comp).order_by('judge__profile').all()
     results_ready = set(judges).issubset({result.judge for result in results})
     context = {}
     if request.user in [j.profile for j in judges]:
@@ -469,6 +488,36 @@ def finals_results(request, comp_id):
             context['error_message'] = error_message
     
     if 'error_message' not in context:
-        # calculate results
-        context['results_dict']: {}
+        results_dict = {}
+        for res in results:
+            if res.comp_reg not in results_dict:
+                results_dict[res.comp_reg] = []
+            results_dict[res.comp_reg].append(res)
+
+
+        judges_list = [j.profile.first_name for j in judges]
+        tmp_dict = {
+            (
+                f'{reg.comp_num}/{reg.final_partner.comp_num}',
+                f'{reg.competitor.first_name} - '+
+                    f'{reg.final_partner.competitor.first_name}',
+            ): res_list
+            for reg,res_list in results_dict.items()
+        }
+
+        sctable = calculate_skating(judges_list,tmp_dict) 
+        skating = list(zip(*sctable))[len(judges)+1:] 
+
+        tmp_dict = {
+            reg : res_list + skating[i+1]
+            for i,(reg,res_list) in enumerate(results_dict.items())
+        }
+        tmp_dict = dict(sorted(tmp_dict.items(), key=lambda item: item[-1]))
+        
+        results_dict = {
+            'judges':judges_list+skating[0],
+            'results':tmp_dict,
+        }  
+        context['results_dict'] = {'':results_dict}
+
     return render(request, 'sc/comp_prelims.html', context)

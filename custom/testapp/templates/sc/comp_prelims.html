@@ -17,20 +17,23 @@
                 <th>{{ judge }}</th>
             {% endfor %}
         </tr>
-        {% for reg,results_row in role_dict.results.items %}
+        {% for competitor,results_row in role_dict.results.items %}
             <tr>
-                <td>{{ reg.comp_num }} </td>
+                <td>{{ competitor[0] }} </td>
                 {% if reg.finalist and results_row %}
-                <th>{{ reg.competitor.fullName }}</th>
+                <th>{{ competitor[1] }}</th>
                 {% else %}
-                <td>{{ reg.competitor.fullName }}</td>
+                <td>{{ competitor[1] }}</td>
                 {% endif %}
                 {% for res in results_row %}
                     <td>{{ res }}</td>
-                {% endfor %}
+                {% endfor %} 
             </tr>
         {% endfor %}
     {% endfor %}
+
+
+
 
 </table>
 {% endif %}
