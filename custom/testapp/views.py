@@ -269,7 +269,9 @@ class CompetitionListViev(ListView):
 
 def redirect_user(request, comp_id):
     comp = Competition.objects.get(id=comp_id)
-    judge = Judge.objects.filter(comp=comp,profile=request.user).first()
+    judge = None
+    if request.user.is_authenticated:
+        judge = Judge.objects.filter(comp=comp,profile=request.user).first()
 
     if judge:
         return redirect('submit_results', comp_id=comp_id)
@@ -331,43 +333,36 @@ def submit_results(request, comp_id):
         return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})
     
     if comp.stage == 'p':
-        # prelims 
-        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role).order_by('comp_num')    
-        if request.method == 'POST':
-            form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
-            if form.is_valid():
-                try:
-                    for reg in registrations:
-                        comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
-                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, 
-                                                               comp_reg=reg, result = comp_res, comment = comp_comment)
-                        res_obj.save()
-                    return redirect('prelims_results', comp_id=comp_id)
-                except IntegrityError:
-                    # Handle the unique constraint violation
-                    error_message = _("This judge already submitted results.")
-                    return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
-        else:
-            form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})   
+        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role).order_by('comp_num')  
     else:
-        # finals
         registrations = Registration.objects.exclude(final_partner__isnull=True).order_by('final_heat_order')
-        if request.method == 'POST':
+    if request.method == 'POST':
+        if comp.stage == 'p':
+            form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
+        else:
             form = FinalsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
-            if form.is_valid():
-                try:
-                    for reg in registrations:
-                        comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
-                        comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
+        if form.is_valid():
+            try:
+                for reg in registrations:
+                    comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
+                    comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
+                    if comp.stage == 'p':
+                        redirect_view = 'prelims_results'
+                        res_obj = PrelimsResult.objects.create(comp = comp, judge_profile = judge.profile, 
+                                                            comp_reg=reg, result = comp_res, comment = comp_comment)
+                    else:
+                        redirect_view = 'finals_results'
                         res_obj = FinalsResult.objects.create(comp = comp, judge_profile = judge.profile, 
-                                                              comp_reg=reg, result = comp_res, comment = comp_comment)
-                        res_obj.save()
-                    return redirect('finals_results', comp_id=comp_id)
-                except IntegrityError:
-                    # Handle the unique constraint violation
-                    error_message = _("This judge already submitted results.")
-                    return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+                                                            comp_reg=reg, result = comp_res, comment = comp_comment)
+                    res_obj.save()
+                return redirect(redirect_view, comp_id=comp_id)
+            except IntegrityError:
+                # Handle the unique constraint violation
+                error_message = _("This judge already submitted results.")
+                return render(request, 'sc/comp_judge.html', {'form': form, 'comp': comp, 'error_message':error_message})
+    else:
+        if comp.stage == 'p':
+            form = PrelimsResultsForm(initial={'comp': comp,'registrations':registrations})  
         else:
             form = FinalsResultsForm(initial={'comp': comp,'registrations':registrations})
 
