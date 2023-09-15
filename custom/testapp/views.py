@@ -349,9 +349,16 @@ def submit_results(request, comp_id):
         return render(request, 'sc/comp_judge.html', {'comp': comp, 'error_message':error_message})
     
     if comp.stage == 'p':
-        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role).order_by('comp_num')  
+        registrations = Registration.objects.filter(comp=comp,comp_role=judge.prelims_role).order_by('comp_num') 
+        redirect_view = 'prelims_results' 
+        if PrelimsResult.objects.filter(judge__profile=request.user,judge__comp=comp).exists():
+            return redirect(redirect_view, comp_id=comp_id)
     else:
         registrations = Registration.objects.exclude(final_partner__isnull=True).order_by('final_heat_order')
+        redirect_view = 'finals_results'
+        if FinalsResult.objects.filter(judge__profile=request.user,judge__comp=comp).exists():
+            return redirect(redirect_view, comp_id=comp_id)
+
     if request.method == 'POST':
         if comp.stage == 'p':
             form = PrelimsResultsForm(request.POST,initial={'comp': comp,'registrations':registrations})
@@ -363,11 +370,11 @@ def submit_results(request, comp_id):
                     comp_res = form.cleaned_data[f'competitor_{reg.comp_num}']
                     comp_comment = form.cleaned_data[f'comment_{reg.comp_num}']
                     if comp.stage == 'p':
-                        redirect_view = 'prelims_results'
+                        
                         res_obj = PrelimsResult.objects.create(judge = judge, comp_reg=reg, 
                                                                result = comp_res, comment = comp_comment)
                     else:
-                        redirect_view = 'finals_results'
+                        
                         res_obj = FinalsResult.objects.create(judge = judge, comp_reg=reg, 
                                                               result = comp_res, comment = comp_comment)
                     res_obj.save()
