@@ -442,7 +442,7 @@ def prelims_results(request, comp_id):
                 return(points,num_Y,main_judge_points)
 
             tmp_dict = {
-                (reg.comp_num,reg.competitor.fullName):
+                (reg.comp_num,reg.competitor.fullName,reg.finalist):
                     res_list+[res_list.count('Y') + 0.5*res_list.count('Mb'),] 
                 for reg,res_list in results_dict.items() if reg.comp_role == comp_role
             }
@@ -492,8 +492,7 @@ def finals_results(request, comp_id):
         for res in results:
             if res.comp_reg not in results_dict:
                 results_dict[res.comp_reg] = []
-            results_dict[res.comp_reg].append(res)
-
+            results_dict[res.comp_reg].append(res.result)
 
         judges_list = [j.profile.first_name for j in judges]
         tmp_dict = {
@@ -501,21 +500,17 @@ def finals_results(request, comp_id):
                 f'{reg.comp_num}/{reg.final_partner.comp_num}',
                 f'{reg.competitor.first_name} - '+
                     f'{reg.final_partner.competitor.first_name}',
+                reg.finalist,
             ): res_list
             for reg,res_list in results_dict.items()
         }
 
         sctable = calculate_skating(judges_list,tmp_dict) 
-        skating = list(zip(*sctable))[len(judges)+1:] 
-
-        tmp_dict = {
-            reg : res_list + skating[i+1]
-            for i,(reg,res_list) in enumerate(results_dict.items())
-        }
-        tmp_dict = dict(sorted(tmp_dict.items(), key=lambda item: item[-1]))
+        tmp_dict = {sc_line[0]:sc_line[1:] for sc_line in sctable[1:]}
+        tmp_dict = dict(sorted(tmp_dict.items(), key=lambda item: item[1][-1]))
         
         results_dict = {
-            'judges':judges_list+skating[0],
+            'judges':sctable[0][1:],
             'results':tmp_dict,
         }  
         context['results_dict'] = {'':results_dict}
