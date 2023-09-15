@@ -405,6 +405,8 @@ def prelims_results(request, comp_id):
 
     if user_is_judge:
         if not all_results_ready:
+            if request.user not in {result.judge.profile for result in results}:
+                return redirect('submit_results', comp_id=comp_id)
             error_message = _("Waiting other judges to finish.")
             context['error_message'] = error_message
     elif not comp.results_visible:
@@ -412,13 +414,16 @@ def prelims_results(request, comp_id):
             role_results_dict = {}
             for comp_role in comp.comp_roles.all():
                 role_finalists = Registration.objects.filter(finalist=True,comp_role=comp_role).order_by('comp_num').all()
-                role_results_dict[comp_role.pluralName] = {'judges':[],'results':{reg:[] for reg in role_finalists}}
+                role_results_dict[comp_role.pluralName] = {
+                    'judges':[],'results':{(reg.comp_num,reg.competitor.fullName,reg.finalist):[] for reg in role_finalists}
+                }
             context['results_dict'] = role_results_dict
         else:
-            error_message = _("Prelims results are not ready yet.")
+            error_message = _("Prelims results are not available yet.")
             context['error_message'] = error_message
 
     if context == {}:
+        context['prelims_active'] = 1
         results_dict = {}
         for res in results:
             if res.comp_reg not in results_dict:
@@ -465,26 +470,29 @@ def prelims_results(request, comp_id):
             comp.stage = 'd'
             comp.save()
 
-        if comp.stage == 'f' and user_is_judge:
+        if (comp.stage == 'f' and user_is_judge) or comp.results_visible:
             context['comp_id'] = comp_id
+
 
         context['results_dict'] = role_results_dict
 
-    return render(request, 'sc/comp_prelims.html', context)
+    return render(request, 'sc/comp_results.html', context)
 
 def finals_results(request, comp_id):
     comp = get_object_or_404(Competition, pk=comp_id)
     judges = Judge.objects.filter(comp=comp,finals=True).order_by('profile').all()
     results = FinalsResult.objects.filter(judge__comp=comp).order_by('judge__profile').all()
     results_ready = set(judges).issubset({result.judge for result in results})
-    context = {}
+    context = {'comp_id':comp_id}
     if request.user in [j.profile for j in judges]:
         if not results_ready:
+            if request.user not in {result.judge.profile for result in results}:
+                return redirect('submit_results', comp_id=comp_id)
             error_message = _("Waiting other judges to finish.")
             context['error_message'] = error_message
     else:
         if not comp.results_visible or not results_ready:
-            error_message = _("Finals results are not ready yet.")
+            error_message = _("Finals results are not available yet.")
             context['error_message'] = error_message
     
     if 'error_message' not in context:
@@ -515,4 +523,4 @@ def finals_results(request, comp_id):
         }  
         context['results_dict'] = {'':results_dict}
 
-    return render(request, 'sc/comp_prelims.html', context)
+    return render(request, 'sc/comp_results.html', context)
