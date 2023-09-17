@@ -5,20 +5,12 @@ from .models import Competition, Judge, Registration
 
 crown_bar_jnj ={
     'judges':{
-        'j1':'Марія Тітова',
-        'j2':'Світлана Матових',
-        'j3':'Саша Мосійчук',
-        'j4':'СергійБ Безуглий',
-        'j5':'Максим Болгов',
-        'j6':'Сергій Ковальов',
-    },
-    'passwords':{
-        'j1':r'$@#$Vd3@$',
-        'j2':r'Ab3f%O?06',
-        'j3':r'#@lv8l#p1',
-        'j4':r'o&9A@54&V',
-        'j5':r'XKrKD$&0j',
-        'j6':r'@41G939K6',
+        'j1':{'name':'Марія Тітова','attr':('sp','l','spm','sf',),'pass':r'$@#$Vd3@$'},
+        'j2':{'name':'Світлана Матових','attr':('sp','l','sf',),'pass':r'Ab3f%O?06'},
+        'j3':{'name':'Саша Мосійчук','attr':('sp','l','sf',),'pass':r'#@lv8l#p1'},
+        'j4':{'name':'СергійБ Безуглий','attr':('sp','f','spm','sf'),'pass':r'o&9A@54&V'},
+        'j5':{'name':'Максим Болгов','attr':('sp','f','sf','sfm'),'pass':r'XKrKD$&0j'},
+        'j6':{'name':'Сергій Ковальов','attr':('sp','f'),'pass':r'@41G939K6'},
     },
     'leaders':{
         1:'Влад Володько',
@@ -85,18 +77,18 @@ crown_bar_jnj ={
 class CompetitionRegistrationTest(TestCase):
     def setUp(self):
         # Create judges 
-        self.judges = []
-        for j,p in crown_bar_jnj['passwords'].items():
-            judge = User.objects.create_user(
+        self.judge_profiles = {}
+        for j,p in crown_bar_jnj['judges'].items():
+            jname = [p['name']].split()
+            profile = User.objects.create_user(
                 username=j,
-                password=p,
-                first_name=crown_bar_jnj['judges'][j].split()[0],
-                last_name=crown_bar_jnj['judges'][j].split()[1],
+                password=p['pass'],
+                first_name=jname[0],
+                last_name=jname[1],
             )
-            self.judges.append(judge)
-            Judge.objects.create(user=judge)
+            self.judge_profiles[j:profile]
 
-    def test_competition_registration(self):
+    def test_competition(self):
         # Log in as admin (you can use Client.login)
         self.client.login(username='toweeelie', password='SurStroMMing@666')
 
@@ -104,20 +96,70 @@ class CompetitionRegistrationTest(TestCase):
         competition_data = {
             'title': 'Test Competition',
             'comp_roles':('Leader','Follower'),
+            'finalists_number':len(crown_bar_jnj['prelims']['finalists']['leaders'])
         }
 
         response = self.client.post('/admin/testapp/competition/add/', competition_data)
         self.assertEqual(response.status_code, 302)  # Check for successful creation (HTTP 302)
 
-        self.client.logout()
-'''
-        # Register 24 competitors
-        for i in range(1, 25):
-            response = self.client.post('/register_competitor/', {'name': f'Competitor {i}'})
-            self.assertEqual(response.status_code, 302)  # Check for successful registration (HTTP 302)
+        # register competitors
+        comp = Competition.objects.get(title='Test Competition')
+        for role in ('Leader','Follower'):
+            for competitor in crown_bar_jnj[role.lower+'s'].values():
+                response = self.client.post(f'/competitions/{comp.id}/register/', {
+                    'first_name': competitor.split()[0],
+                    'last_name': competitor.split()[1],
+                    'email': 'noemail@example.com',
+                    'role':role,
+                })
+                self.assertEqual(response.status_code, 302)  # Check for successful registration (HTTP 302)
 
-        # Verify that there are now 24 registered competitors for the competition
-        competition = Competition.objects.get(title='Test Competition')
-        registered_competitors = PrelimsRegistration.objects.filter(competition=competition)
-        self.assertEqual(registered_competitors.count(), 24)
-'''
+        registered_competitors = Registration.objects.filter(comp=comp)
+        self.assertEqual(registered_competitors.count(), len(crown_bar_jnj['leaders'])+len(crown_bar_jnj['followers']))
+
+        # add judges
+        for j,p in self.judge_profiles.items():
+            jattr = crown_bar_jnj['judges'][j]['attr']
+            args = {
+                'profile':p,
+                'comp':comp,
+                'prelims':True,
+                'prelims_role':'Follower' if 'f' in jattr else 'Leader'
+            }
+            if 'spm' in jattr:
+                args['prelims_main_judge']= True
+            if 'sf' in jattr:
+                args['finals']=True
+                if 'sfm' in jattr:
+                    args['finals_main_judge']=True
+            
+            Judge.objects.create(**args)
+
+        # change competition stage to prelims
+        response = self.client.post(f'/admin/testapp/competition/{comp.id}/change/',{
+            'stage':'p',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        # logout as admin
+        self.client.logout()
+
+        # apply prelims marks with judges accounts
+        stage_points = crown_bar_jnj['prelims']['points']
+        for j,jdict in crown_bar_jnj['judges'].items():
+            jpass = jdict['pass']
+            jrole = 'followers' if 'f' in jdict['attr'] else 'leaders'
+
+            jpoints = {f'competitor_{comp_num}':stage_points[j][comp_num] for comp_num in crown_bar_jnj[jrole]}
+
+            self.client.login(username=j, password=jpass)
+            response = self.client.post(f'/competitions/{comp.id}/judging/', jpoints)
+            self.assertEqual(response.status_code, 302)
+            self.client.logout()
+
+
+        # Log in as admin and fill in draw results
+        self.client.login(username='toweeelie', password='SurStroMMing@666')
+
+        self.client.logout()
+
