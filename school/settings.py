@@ -106,6 +106,7 @@ INSTALLED_APPS = [
 
     # ## These apps provide additional functionality and are optional,
     # ## but they are enabled by default:
+    'danceschool.competitions',
     'danceschool.financial',
     'danceschool.private_events',
     'danceschool.discounts',
