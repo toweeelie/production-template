@@ -1,23 +1,17 @@
-from django.views.generic import (
-    FormView, CreateView, UpdateView, DetailView, TemplateView, ListView,
-    RedirectView
-)
-
+from django.views.generic import FormView, RedirectView
 from django.urls import reverse
 from django.http import HttpResponseBadRequest,HttpResponseRedirect,HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
-from braces.views import UserFormKwargsMixin, PermissionRequiredMixin, LoginRequiredMixin, StaffuserRequiredMixin
+from braces.views import PermissionRequiredMixin
 from danceschool.core.models import Customer
-from danceschool.core.views import EventRegistrationSummaryView
 from .forms import QuickCustomerRegForm, MergeCustomersForm
 
 #from danceschool.core.constants import getConstant, INVOICE_VALIDATION_STR
 from danceschool.core.models import Invoice, CashPaymentRecord, Registration, EventRegistration, DanceRole
 from danceschool.core.constants import getConstant
-from danceschool.core.helpers import getReturnPage
 
 import logging
 
@@ -133,3 +127,9 @@ class MergeCustomersView(PermissionRequiredMixin, FormView):
         return HttpResponseRedirect(reverse('admin:core_customer_changelist'))
 
 # EventRegistrationSummaryView.context['form'] = QuickCustomerRegForm
+
+class SCRedirectView(RedirectView):
+    permanent = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('skatingCalculator')
