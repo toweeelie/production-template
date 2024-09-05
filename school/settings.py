@@ -129,6 +129,9 @@ INSTALLED_APPS = [
     # tokens or other environment variables to be present.
     'danceschool.payments.payatdoor',
 
+    # qr codes generation
+    'segno_qr',
+
     # These are required for the CMS
     'menus',
     'sekizai',
@@ -198,6 +201,7 @@ INSTALLED_APPS = [
     # Django-polymorphic is used for Event multi-table inheritance
     'polymorphic',
 
+    # translation
     'parler',
 
     # Django-storages allows use of Amazon S3 or other solutions for
