@@ -99,3 +99,5 @@ backups/web/*
 
 # Sass cache
 .sass-cache/
+
+certs/*
