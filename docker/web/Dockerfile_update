@@ -1,3 +1,4 @@
 FROM danceschool_web:orig
 COPY school/ /data/web/school/
 RUN pip install django-segno-qr
+RUN pip install unidecode
